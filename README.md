@@ -1,7 +1,14 @@
-# Monsterreise – Entwicklungsauftrag 003 (v0.2 Integrationskandidat)
+# Monsterreise – v0.2.1 Integrationskandidat
 
-Start: Projektordner mit `python3 -m http.server 8000` bereitstellen und `http://localhost:8000` öffnen oder auf GitHub Pages veröffentlichen.
+Technischer Teststand. Startdorf, Haus und NPC sind Platzhalter, keine endgültige Weltgestaltung.
 
-WASD/Pfeiltasten bewegen; Enter/Leertaste/Touch-Aktion interagieren mit angrenzender Kachel in Blickrichtung. Tür des Testhauses im Dorf bei (7,10), Ausgang im Haus (5,10), NPC im Dorf bei (20,14). Dialog mit Aktion weiterblättern.
+## Start
+Die Dateien inklusive `index.html` in das Root-Verzeichnis eines GitHub-Pages-Repositories hochladen oder lokal `python3 -m http.server 8000` starten und `http://localhost:8000` öffnen. Keine Build-Tools erforderlich.
 
-Tests: `node --test tests/*.test.js`. Schnittstellen und offene Gerätetests: `docs/INTEGRATION_003.md`.
+## Steuerung
+WASD/Pfeiltasten oder Touch-Steuerkreuz: bewegen. **Auf die sichtbare Haustür laufen**: automatischer Eintritt. Im Haus auf die Tür am unteren Rand laufen: automatischer Austritt. Enter/Leertaste oder Touch-„Aktion“: NPC ansprechen / Dialog fortsetzen; Türen brauchen keine Aktionstaste.
+
+## Tests
+Node.js: `npm test` (21 automatisierte Tests bestanden). Manuelle GitHub-Pages-, Mac-, iPhone- und Hoch-/Querformatprüfungen stehen aus.
+
+Siehe `docs/INTEGRATION_004.md` für geänderte Schnittstellen und die Abstimmung mit Chats 02, 05, 06 und 10.
