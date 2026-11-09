@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {Game} from '../src/core/Game.js';
+import {Input} from '../src/core/Input.js';
+import {WorldSession} from '../src/world/WorldSession.js';
+function fakeGame(){const g=Object.create(Game.prototype);g.session=new WorldSession();g.world=g.session.world;g.player={x:0,y:0,width:26,height:30,facing:'down'};g.camera={follow(...args){this.last=args}};g.renderer={width:320,height:240};g.ui={open:false,events:[],isDialogOpen(){return this.open},showDialog(e){this.events.push(e);this.open=true},advanceDialog(){this.open=false},setStatus(s){this.status=s}};return g}
+test('starts in village at valid spawn',()=>{const g=fakeGame(),s=g.session.spawn();assert.equal(g.world.id,'start-village');assert.equal(g.world.collidesRect(s.x,s.y,26,30),false)});
+test('Game transition both ways resets camera and restores position',()=>{const g=fakeGame();g.player.x=336;g.player.y=432;g.player.facing='down';assert.equal(g.interact().type,'transition');assert.equal(g.world.id,'sample-house');assert.equal(g.camera.last[1],g.world);g.player.x=240;g.player.y=432;g.player.facing='down';assert.equal(g.interact().type,'transition');assert.equal(g.world.id,'start-village');assert.equal(g.player.x,336);assert.equal(g.player.y,432);assert.equal(g.camera.last[1],g.world)});
+test('NPC event forwarded and dialog advance',()=>{const g=fakeGame();g.player.x=912;g.player.y=672;g.player.facing='right';assert.equal(g.interact().type,'dialog');assert.equal(g.ui.events.length,1);assert.equal(g.interact().type,'dialog-advance')});
+class Target{constructor(){this.handlers=new Map()}addEventListener(k,v){this.handlers.set(k,v)}removeEventListener(k){this.handlers.delete(k)}emit(k,key){this.handlers.get(k)?.({key,preventDefault(){}})}}
+test('keyboard interaction is edge-triggered',()=>{const oldW=globalThis.window,oldD=globalThis.document;globalThis.window=new Target();globalThis.document=new Target();try{const t=new Target(),i=new Input(t,new Target());t.emit('keydown','Enter');t.emit('keydown','Enter');assert.equal(i.consumeInteract(),true);assert.equal(i.consumeInteract(),false);t.emit('keyup','Enter');t.emit('keydown','Enter');assert.equal(i.consumeInteract(),true);i.destroy()}finally{globalThis.window=oldW;globalThis.document=oldD}});

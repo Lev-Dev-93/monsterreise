@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createWorldRegistry} from '../src/world/WorldRegistry.js';import {WorldSession} from '../src/world/WorldSession.js';import {Player} from '../src/player/Player.js';
+const reg=()=>createWorldRegistry();const at=(x,y,facing='up')=>{const p=new Player(x*48,y*48);p.facing=facing;return p};
+test('village and interior are valid maps',()=>{const r=reg();assert.equal(r.size,2);assert.equal(r.get('start-village').width,32*48);assert.equal(r.get('sample-house').height,12*48)});
+test('trees, buildings, well, NPCs and boundaries collide',()=>{const w=reg().get('start-village');for(const [x,y] of [[2,5],[5,6],[16,12],[20,14],[0,0]])assert.equal(w.isSolidTile(x,y),true,`${x},${y}`);assert.equal(w.isSolidTile(15,17),false)});
+test('v0.1 player movement respects village obstacles',()=>{const w=reg().get('start-village');const p=at(4,7,'right');p.update(.5,{x:1,y:0},w);assert.ok(p.x+p.width<=5*48)});
+test('enter and leave house returns to exact prior position',()=>{const s=new WorldSession(reg());const p=at(7,11,'up');const original={x:p.x,y:p.y};const enter=s.interact(p);assert.equal(enter.type,'transition');assert.equal(s.mapId,'sample-house');p.x=enter.x;p.y=enter.y;p.facing='down';p.x=5*48;p.y=9*48;const exit=s.interact(p);assert.equal(exit.type,'transition');assert.equal(s.mapId,'start-village');assert.deepEqual({x:exit.x,y:exit.y},original)});
+test('dialog requires adjacent tile and correct facing',()=>{const s=new WorldSession(reg());assert.equal(s.interact(at(20,16,'up')),null);assert.equal(s.interact(at(19,14,'up')),null);const e=s.interact(at(19,14,'right'));assert.equal(e.type,'dialog');assert.equal(e.npcId,'villager-01');assert.ok(e.lines.length)});
+test('transition is blocked without return state',()=>{const s=new WorldSession(reg(),'sample-house');assert.equal(s.interact(at(5,9,'down')).type,'blocked')});
