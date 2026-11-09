@@ -25,3 +25,11 @@ Quelle: Projekthandbuch v1.0, Kapitel 2 und 30. Die konkrete Engine bleibt offen
 - Daten in JSON dürfen nicht mit laufenden Spielstandsdaten verwechselt werden.
 - Schnittstellen werden vor Implementierung in diesem Dokument konkretisiert.
 - Kein Modul importiert zyklisch ein anderes.
+
+## Auftrag 008 – Team
+- `pokemon/Team.js` verwaltet bis zu sechs Instanzen aus `pokemon/Pokemon.js`; keine UI-/Battle-/World-Imports.
+- UI liest Kopien via `getMembers()`; SaveSystem erhält JSON via `toSaveData()` und rekonstruiert via `restoreTeam()`.
+- PC-Übergaben, Kampfzustandsprüfung und spielstandweite ID-Vergabe verbleiben bei späteren Integrationsschichten.
+
+## Auftrag 010 – Professor-Testbegegnung
+`dialog/ProfessorEncounter` interpretiert das `WorldSession`-Dialogereignis `professor-test` und ergänzt ein Abschlussereignis. `Game` koordiniert dessen Ausführung nach Schließen des Dialogs; `main.js` verbindet es mit dem bestehenden Starter-Hook. Die Startervergabe bleibt ausschließlich in `Team.assignStarter()` über `PokemonMenus`. Dies ist eine vorläufige Testszene, keine kanonische Story-Implementierung.

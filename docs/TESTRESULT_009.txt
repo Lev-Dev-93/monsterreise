@@ -1,0 +1,362 @@
+
+> monsterreise-v0.1@0.3.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: door tile is visually aligned, open and registered
+ok 1 - door tile is visually aligned, open and registered
+  ---
+  duration_ms: 2.444716
+  type: 'test'
+  ...
+# Subtest: actual movement enters and leaves without bounce
+ok 2 - actual movement enters and leaves without bounce
+  ---
+  duration_ms: 1.079523
+  type: 'test'
+  ...
+# Subtest: exit remains walkable and blocked return does not repeat
+ok 3 - exit remains walkable and blocked return does not repeat
+  ---
+  duration_ms: 1.472422
+  type: 'test'
+  ...
+# Subtest: interaction key does not activate doorway but still activates NPC
+ok 4 - interaction key does not activate doorway but still activates NPC
+  ---
+  duration_ms: 0.221067
+  type: 'test'
+  ...
+# Subtest: Game movement transition resets camera
+ok 5 - Game movement transition resets camera
+  ---
+  duration_ms: 0.690679
+  type: 'test'
+  ...
+# Subtest: test map dimensions and obstacle
+ok 6 - test map dimensions and obstacle
+  ---
+  duration_ms: 4.487199
+  type: 'test'
+  ...
+# Subtest: world boundaries block movement
+ok 7 - world boundaries block movement
+  ---
+  duration_ms: 0.309076
+  type: 'test'
+  ...
+# Subtest: movement speed and diagonal normalization
+ok 8 - movement speed and diagonal normalization
+  ---
+  duration_ms: 0.770006
+  type: 'test'
+  ...
+# Subtest: collision prevents passing walls
+ok 9 - collision prevents passing walls
+  ---
+  duration_ms: 0.305441
+  type: 'test'
+  ...
+# Subtest: sliding along wall remains possible
+ok 10 - sliding along wall remains possible
+  ---
+  duration_ms: 0.380241
+  type: 'test'
+  ...
+# Subtest: camera follows and clamps to map
+ok 11 - camera follows and clamps to map
+  ---
+  duration_ms: 0.403746
+  type: 'test'
+  ...
+# Subtest: native fullscreen enters and exits without fallback
+ok 12 - native fullscreen enters and exits without fallback
+  ---
+  duration_ms: 3.319276
+  type: 'test'
+  ...
+# Subtest: external browser fullscreen exit restores original layout
+ok 13 - external browser fullscreen exit restores original layout
+  ---
+  duration_ms: 0.375524
+  type: 'test'
+  ...
+# Subtest: iPhone no API uses reversible layout fallback, not browser fullscreen
+ok 14 - iPhone no API uses reversible layout fallback, not browser fullscreen
+  ---
+  duration_ms: 0.165754
+  type: 'test'
+  ...
+# Subtest: rejected fullscreen request falls back safely
+ok 15 - rejected fullscreen request falls back safely
+  ---
+  duration_ms: 0.369735
+  type: 'test'
+  ...
+# Subtest: cleanup removes listeners
+ok 16 - cleanup removes listeners
+  ---
+  duration_ms: 0.120177
+  type: 'test'
+  ...
+# Subtest: viewport-safe UI, responsive controls and canvas resize observer are present
+ok 17 - viewport-safe UI, responsive controls and canvas resize observer are present
+  ---
+  duration_ms: 0.407962
+  type: 'test'
+  ...
+# Subtest: starts in village at valid spawn
+ok 18 - starts in village at valid spawn
+  ---
+  duration_ms: 1.014045
+  type: 'test'
+  ...
+# Subtest: Game automatic transitions both ways reset camera
+ok 19 - Game automatic transitions both ways reset camera
+  ---
+  duration_ms: 0.348354
+  type: 'test'
+  ...
+# Subtest: NPC event forwarded and dialog advance
+ok 20 - NPC event forwarded and dialog advance
+  ---
+  duration_ms: 0.2849
+  type: 'test'
+  ...
+# Subtest: keyboard interaction is edge-triggered
+ok 21 - keyboard interaction is edge-triggered
+  ---
+  duration_ms: 0.367432
+  type: 'test'
+  ...
+# Subtest: Sechs Testarten vorhanden
+ok 22 - Sechs Testarten vorhanden
+  ---
+  duration_ms: 1.075217
+  type: 'test'
+  ...
+# Subtest: Basiswerte und Typen lesbar
+ok 23 - Basiswerte und Typen lesbar
+  ---
+  duration_ms: 0.77268
+  type: 'test'
+  ...
+# Subtest: Starterauswahl schließt Lucario und Mewtu aus
+ok 24 - Starterauswahl schließt Lucario und Mewtu aus
+  ---
+  duration_ms: 0.287935
+  type: 'test'
+  ...
+# Subtest: Starter erhalten sechs perfekte IVs
+ok 25 - Starter erhalten sechs perfekte IVs
+  ---
+  duration_ms: 0.351979
+  type: 'test'
+  ...
+# Subtest: Shiny unabhängig von Herkunft mit perfekten IVs
+ok 26 - Shiny unabhängig von Herkunft mit perfekten IVs
+  ---
+  duration_ms: 0.211191
+  type: 'test'
+  ...
+# Subtest: Wilde IVs im Bereich 0 bis 31
+ok 27 - Wilde IVs im Bereich 0 bis 31
+  ---
+  duration_ms: 0.414922
+  type: 'test'
+  ...
+# Subtest: Ungültige Starter und manipulierte Shiny-IVs werden abgewiesen
+ok 28 - Ungültige Starter und manipulierte Shiny-IVs werden abgewiesen
+  ---
+  duration_ms: 0.334614
+  type: 'test'
+  ...
+# Subtest: Serialisierung und Laden erhalten individuelle Werte
+ok 29 - Serialisierung und Laden erhalten individuelle Werte
+  ---
+  duration_ms: 1.028577
+  type: 'test'
+  ...
+# Subtest: Entwicklungsverweise ohne erfundene Bedingungen
+ok 30 - Entwicklungsverweise ohne erfundene Bedingungen
+  ---
+  duration_ms: 0.425418
+  type: 'test'
+  ...
+# Subtest: Unbekannte Arten und doppelte IDs abweisen
+ok 31 - Unbekannte Arten und doppelte IDs abweisen
+  ---
+  duration_ms: 0.477194
+  type: 'test'
+  ...
+# Subtest: Stammdaten bleiben bei Instanzänderungen unverändert
+ok 32 - Stammdaten bleiben bei Instanzänderungen unverändert
+  ---
+  duration_ms: 0.225313
+  type: 'test'
+  ...
+# Subtest: Ungültige IV-Zahlen und RNG abweisen
+ok 33 - Ungültige IV-Zahlen und RNG abweisen
+  ---
+  duration_ms: 0.214576
+  type: 'test'
+  ...
+# Subtest: leeres Team und feste Grenze
+ok 34 - leeres Team und feste Grenze
+  ---
+  duration_ms: 2.350667
+  type: 'test'
+  ...
+# Subtest: Starter nur einmal und sechs perfekte IV
+ok 35 - Starter nur einmal und sechs perfekte IV
+  ---
+  duration_ms: 0.532746
+  type: 'test'
+  ...
+# Subtest: unzulässige Starter und ungültige Level bleiben ohne Effekt
+ok 36 - unzulässige Starter und ungültige Level bleiben ohne Effekt
+  ---
+  duration_ms: 0.340432
+  type: 'test'
+  ...
+# Subtest: keine doppelten IDs, keine Starter über addMember
+ok 37 - keine doppelten IDs, keine Starter über addMember
+  ---
+  duration_ms: 0.471265
+  type: 'test'
+  ...
+# Subtest: Lesen als Kopie, Reihenfolge, Entfernen
+ok 38 - Lesen als Kopie, Reihenfolge, Entfernen
+  ---
+  duration_ms: 1.436158
+  type: 'test'
+  ...
+# Subtest: Save-Roundtrip verhindert erneute Startervergabe nach Entfernen
+ok 39 - Save-Roundtrip verhindert erneute Startervergabe nach Entfernen
+  ---
+  duration_ms: 0.341184
+  type: 'test'
+  ...
+# Subtest: fehlerhafte Save-Daten zurückweisen
+ok 40 - fehlerhafte Save-Daten zurückweisen
+  ---
+  duration_ms: 0.579054
+  type: 'test'
+  ...
+# Subtest: holding a direction retains continuous movement and releases on pointerup
+ok 41 - holding a direction retains continuous movement and releases on pointerup
+  ---
+  duration_ms: 2.754353
+  type: 'test'
+  ...
+# Subtest: cancel and lost capture release touches even with different event target
+ok 42 - cancel and lost capture release touches even with different event target
+  ---
+  duration_ms: 0.161569
+  type: 'test'
+  ...
+# Subtest: multitouch and blur release all held directions
+ok 43 - multitouch and blur release all held directions
+  ---
+  duration_ms: 0.223569
+  type: 'test'
+  ...
+# Subtest: action fires once per hold and is available after release
+ok 44 - action fires once per hold and is available after release
+  ---
+  duration_ms: 0.276618
+  type: 'test'
+  ...
+# Subtest: Safari context menu and selection suppressed only on controls
+ok 45 - Safari context menu and selection suppressed only on controls
+  ---
+  duration_ms: 0.247886
+  type: 'test'
+  ...
+# Subtest: Safari CSS protection scoped to control buttons
+ok 46 - Safari CSS protection scoped to control buttons
+  ---
+  duration_ms: 0.368213
+  type: 'test'
+  ...
+# Subtest: Starterliste verwendet nur Registry-Berechtigung und zeigt keine unzulässigen Arten
+ok 47 - Starterliste verwendet nur Registry-Berechtigung und zeigt keine unzulässigen Arten
+  ---
+  duration_ms: 1.614612
+  type: 'test'
+  ...
+# Subtest: Startervergabe nutzt Team und Level 5, verhindert zweite Vergabe
+ok 48 - Startervergabe nutzt Team und Level 5, verhindert zweite Vergabe
+  ---
+  duration_ms: 0.762806
+  type: 'test'
+  ...
+# Subtest: Teamansicht zeigt Art, Level, Typ und vorhandene Statusdaten
+ok 49 - Teamansicht zeigt Art, Level, Typ und vorhandene Statusdaten
+  ---
+  duration_ms: 0.369905
+  type: 'test'
+  ...
+# Subtest: Menüöffnung und Schließen signalisieren Eingabesperre
+ok 50 - Menüöffnung und Schließen signalisieren Eingabesperre
+  ---
+  duration_ms: 0.853549
+  type: 'test'
+  ...
+# Subtest: Spielintegration sperrt Bewegung, Interaktion und Portalprüfung während Menü
+ok 51 - Spielintegration sperrt Bewegung, Interaktion und Portalprüfung während Menü
+  ---
+  duration_ms: 0.583771
+  type: 'test'
+  ...
+# Subtest: Professor-Auslösung ist nur vorbereiteter Hook, kein automatischer Spielstart
+ok 52 - Professor-Auslösung ist nur vorbereiteter Hook, kein automatischer Spielstart
+  ---
+  duration_ms: 0.294794
+  type: 'test'
+  ...
+# Subtest: village and interior are valid maps
+ok 53 - village and interior are valid maps
+  ---
+  duration_ms: 1.32862
+  type: 'test'
+  ...
+# Subtest: trees, buildings, well, NPCs and boundaries collide
+ok 54 - trees, buildings, well, NPCs and boundaries collide
+  ---
+  duration_ms: 0.296748
+  type: 'test'
+  ...
+# Subtest: v0.1 player movement respects village obstacles
+ok 55 - v0.1 player movement respects village obstacles
+  ---
+  duration_ms: 0.502772
+  type: 'test'
+  ...
+# Subtest: automatic enter and leave use safe spawn tiles
+ok 56 - automatic enter and leave use safe spawn tiles
+  ---
+  duration_ms: 1.142926
+  type: 'test'
+  ...
+# Subtest: dialog requires adjacent tile and correct facing
+ok 57 - dialog requires adjacent tile and correct facing
+  ---
+  duration_ms: 0.501449
+  type: 'test'
+  ...
+# Subtest: transition is blocked without return state
+ok 58 - transition is blocked without return state
+  ---
+  duration_ms: 0.220956
+  type: 'test'
+  ...
+1..58
+# tests 58
+# suites 0
+# pass 58
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 243.12025

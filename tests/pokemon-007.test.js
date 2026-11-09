@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createPokemon,createRegistry,defineSpecies,perfectIVs,randomIVs,serializePokemon,deserializePokemon,evolutionTargets} from '../src/pokemon/Pokemon.js';
+import {sampleRegistry} from '../src/pokemon/sampleData.js';
+const make=(extra={})=>createPokemon({registry:sampleRegistry,speciesId:'charmander',instanceId:'p1',level:5,...extra});
+test('Sechs Testarten vorhanden',()=>assert.equal(sampleRegistry.list().length,6));
+test('Basiswerte und Typen lesbar',()=>{assert.equal(sampleRegistry.get('charmander').baseStats.hp,39);assert.deepEqual(sampleRegistry.get('lucario').types,['Kampf','Stahl']);});
+test('Starterauswahl schließt Lucario und Mewtu aus',()=>{assert.equal(sampleRegistry.get('riolu').starterEligible,true);assert.equal(sampleRegistry.get('lucario').starterEligible,false);assert.equal(sampleRegistry.get('mewtwo').starterEligible,false);});
+test('Starter erhalten sechs perfekte IVs',()=>assert.deepEqual(make({origin:'starter'}).iv,perfectIVs()));
+test('Shiny unabhängig von Herkunft mit perfekten IVs',()=>assert.deepEqual(make({shiny:true,origin:'bred'}).iv,perfectIVs()));
+test('Wilde IVs im Bereich 0 bis 31',()=>{assert.deepEqual(Object.values(randomIVs(()=>0)),Array(6).fill(0));assert.deepEqual(Object.values(randomIVs(()=>0.99999)),Array(6).fill(31));});
+test('Ungültige Starter und manipulierte Shiny-IVs werden abgewiesen',()=>{assert.throws(()=>make({speciesId:'lucario',origin:'starter'}));assert.throws(()=>make({shiny:true,iv:{hp:0}}));});
+test('Serialisierung und Laden erhalten individuelle Werte',()=>{const p=make({experience:42,moveIds:['scratch'],status:'poison',currentHp:12});assert.deepEqual(deserializePokemon(serializePokemon(p),sampleRegistry),p);});
+test('Entwicklungsverweise ohne erfundene Bedingungen',()=>assert.deepEqual(evolutionTargets(sampleRegistry,'riolu'),['lucario']));
+test('Unbekannte Arten und doppelte IDs abweisen',()=>{assert.throws(()=>make({speciesId:'missing'}));assert.throws(()=>createRegistry([sampleRegistry.get('riolu'),sampleRegistry.get('riolu')]));});
+test('Stammdaten bleiben bei Instanzänderungen unverändert',()=>{const p=make();p.level=9;assert.equal(sampleRegistry.get('charmander').baseStats.hp,39);});
+test('Ungültige IV-Zahlen und RNG abweisen',()=>{assert.throws(()=>make({iv:{...perfectIVs(),hp:32}}));assert.throws(()=>randomIVs(()=>1));});

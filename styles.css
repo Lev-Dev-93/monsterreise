@@ -28,3 +28,17 @@
 @media(max-height:420px){#controls{--dpad:min(120px,clamp(76px,32vh,120px),clamp(76px,23vw,120px))}#controls .interact{height:clamp(38px,13vh,44px)}#dialog{bottom:calc(var(--dpad) + 12px)}}
 @media(max-width:360px){header{gap:6px;padding:3px 7px}header strong{font-size:11px;letter-spacing:.04em}.header-actions{gap:5px}#controls .interact{font-size:12px}}
 @media(max-height:280px){footer{display:none}header{padding:2px 8px}#fullscreen-toggle{min-height:36px;min-width:36px}#controls{--dpad:76px}#dialog{bottom:94px}}
+
+/* Auftrag 009: team and professor-only starter panels. */
+#team-toggle{min-width:44px;min-height:44px;border:1px solid #9bb8a3;border-radius:9px;background:#27483e;color:white;font-weight:700;cursor:pointer}
+#pokemon-panel[hidden]{display:none}
+#pokemon-panel{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:#071716dc;padding:clamp(8px,3vmin,22px);overflow:auto}
+.pokemon-panel-inner{width:min(560px,100%);max-height:100%;overflow:auto;overscroll-behavior:contain;background:#18362f;border:2px solid #c5e4a7;border-radius:14px;padding:14px}
+.pokemon-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.pokemon-panel-head h2{font-size:1.2rem;margin:0}
+#pokemon-panel button{min-height:44px;touch-action:manipulation;border-radius:9px;border:1px solid #a4c9a9;background:#31584a;color:white;padding:8px 12px;cursor:pointer}
+.pokemon-card{display:flex;align-items:center;gap:14px;border:1px solid #6b9380;border-radius:10px;padding:10px;margin:10px 0}.pokemon-card p{margin:3px 0;font-size:.9rem}
+.pokemon-sprite{display:grid;place-items:center;flex:none;width:58px;height:58px;background:#2c5147;border:2px dashed #a4c9a9;border-radius:10px;font-size:30px}
+#pokemon-panel .starter-option{display:block;width:100%;text-align:left;margin:8px 0}
+@media(max-width:420px){#team-toggle{padding:5px 8px}#pokemon-panel{align-items:stretch}.pokemon-panel-inner{margin:auto 0}}
+
+#save-slot,#save-button{min-height:44px;border-radius:8px;background:#27483e;color:white;border:1px solid #9bb8a3}#save-button{padding:4px 9px;cursor:pointer}.header-actions{flex-wrap:wrap}#save-status{font-weight:600}
