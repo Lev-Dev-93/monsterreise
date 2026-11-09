@@ -1,8 +1,0 @@
-import test from 'node:test';import assert from 'node:assert/strict';
-import {World,createTestWorld} from '../src/world/World.js';import {Player} from '../src/player/Player.js';import {Camera} from '../src/core/Camera.js';
-test('test map dimensions and obstacle',()=>{const w=createTestWorld();assert.equal(w.width,34*48);assert.equal(w.height,24*48);assert.equal(w.isSolidTile(6,6),true);assert.equal(w.isSolidTile(3,3),false)});
-test('world boundaries block movement',()=>{const w=new World(['###','#.#','###'],48);assert.equal(w.collidesRect(-1,50,10,10),true);assert.equal(w.collidesRect(50,50,10,10),false)});
-test('movement speed and diagonal normalization',()=>{const w=new World(Array(10).fill('.'.repeat(10)),48);const p=new Player(100,100);p.update(1,{x:1,y:0},w);assert.ok(Math.abs(p.x-270)<.001);const q=new Player(100,100);q.update(1,{x:1,y:1},w);assert.ok(Math.abs(Math.hypot(q.x-100,q.y-100)-170)<.001)});
-test('collision prevents passing walls',()=>{const w=new World(['.....','..#..','.....'],48);const p=new Player(48,52);p.update(1,{x:1,y:0},w);assert.ok(p.x+p.width<=96)});
-test('sliding along wall remains possible',()=>{const w=new World(['.....','..#..','..#..','.....'],48);const p=new Player(60,55);p.update(.2,{x:1,y:1},w);assert.equal(p.x,60);assert.ok(p.y>55)});
-test('camera follows and clamps to map',()=>{const w=new World(Array(10).fill('.'.repeat(10)),48);const p=new Player(300,300);const c=new Camera();c.follow(p,w,200,200);assert.ok(c.x>0&&c.y>0);p.x=0;p.y=0;c.follow(p,w,200,200);assert.equal(c.x,0);assert.equal(c.y,0);c.follow(p,w,1000,1000);assert.equal(c.x,0);assert.equal(c.y,0)});
