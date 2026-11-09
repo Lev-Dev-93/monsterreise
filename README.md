@@ -15,3 +15,7 @@ Siehe `docs/INTEGRATION_004.md` für geänderte Schnittstellen und die Abstimmun
 
 ## v0.2.2 – iPhone Safari Touch-Fix
 Touch-Schaltflächen unterdrücken Safari-Textauswahl und Kontextmenüs; Pointer-Freigabe ist bei Abbruch und Capture-Verlust abgesichert. Siehe `docs/INTEGRATION_005.md`. Der tatsächliche Safari-Gerätetest steht noch aus.
+
+## v0.2.3 – optionaler Vollbildmodus
+
+Über das Vergrößern-Symbol oben rechts wird die Vollbilddarstellung ein- und ausgeschaltet. Auf Browsern mit Fullscreen API wird der App-Container im echten Vollbild angezeigt; Esc kann diesen Modus verlassen. Auf iPhone Safari wird stattdessen nur das Spiellayout vergrößert (die Browserleisten werden dadurch **nicht** entfernt). Siehe `docs/INTEGRATION_006.md` für Tests, Einschränkungen und Schnittstellen.
