@@ -12,3 +12,6 @@ WASD/Pfeiltasten oder Touch-Steuerkreuz: bewegen. **Auf die sichtbare Haustür l
 Node.js: `npm test` (21 automatisierte Tests bestanden). Manuelle GitHub-Pages-, Mac-, iPhone- und Hoch-/Querformatprüfungen stehen aus.
 
 Siehe `docs/INTEGRATION_004.md` für geänderte Schnittstellen und die Abstimmung mit Chats 02, 05, 06 und 10.
+
+## v0.2.2 – iPhone Safari Touch-Fix
+Touch-Schaltflächen unterdrücken Safari-Textauswahl und Kontextmenüs; Pointer-Freigabe ist bei Abbruch und Capture-Verlust abgesichert. Siehe `docs/INTEGRATION_005.md`. Der tatsächliche Safari-Gerätetest steht noch aus.
