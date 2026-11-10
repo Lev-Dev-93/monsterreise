@@ -33,3 +33,6 @@ Quelle: Projekthandbuch v1.0, Kapitel 2 und 30. Die konkrete Engine bleibt offen
 
 ## Auftrag 010 – Professor-Testbegegnung
 `dialog/ProfessorEncounter` interpretiert das `WorldSession`-Dialogereignis `professor-test` und ergänzt ein Abschlussereignis. `Game` koordiniert dessen Ausführung nach Schließen des Dialogs; `main.js` verbindet es mit dem bestehenden Starter-Hook. Die Startervergabe bleibt ausschließlich in `Team.assignStarter()` über `PokemonMenus`. Dies ist eine vorläufige Testszene, keine kanonische Story-Implementierung.
+
+## Integration 012 – Positionsspeicherung (v0.3.1)
+`save/SaveSystem` speichert optional `location` im bestehenden Slot-Datensatz: `{mapId,x,y,facing,returnPositions}`. Weltpixel und Rückkehrpunkte werden anhand `world/WorldRegistry` validiert. `core/Game` erstellt/übernimmt den Positions-Snapshot; `world/WorldSession` bleibt Eigentümer von Karten-ID und Rückkehrstapel. Bestehende Team-only-Speicherstände sind lesbar. Details: `docs/INTEGRATION_012.md`.

@@ -28,3 +28,7 @@ Das Teammenü ist über **Team** erreichbar. Die Starterauswahl ist implementier
 
 ## Auftrag 010 – vorläufiger Professor-Test
 In der Testwelt steht bei (18,16) ein als Test markierter Professor. Von Süden ansprechen, Dialog abschließen und die vorhandene Starterauswahl verwenden. Diese Szene ersetzt **nicht** den im Projekthandbuch vorgesehenen Einführungsausflug mit Shiny-Raupy. Details und Tests: `docs/INTEGRATION_010.md`.
+
+
+## v0.3.1 – Auftrag 012
+Spielerposition, Karte, Blickrichtung und Haus-Rückkehrposition werden zusammen mit dem Team pro Slot gespeichert. Ältere Team-only-Spielstände laden am Startspawn. Siehe `docs/INTEGRATION_012.md`; Tests: `npm test`.

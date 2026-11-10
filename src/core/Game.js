@@ -6,6 +6,19 @@ import {WorldSession} from '../world/WorldSession.js';
 import {UI} from '../ui/UI.js';
 export class Game {
  constructor({canvas,controls,session=new WorldSession(),ui,onWorldEvent=e=>e}={}){this.onWorldEvent=onWorldEvent;this.dialogComplete=null;this.session=session;this.world=session.world;const s=session.spawn();this.player=new Player(s.x,s.y);if(this.world.collidesRect(s.x,s.y,this.player.width,this.player.height))throw Error('Spawn blocked');this.camera=new Camera();this.input=new Input(document,controls);this.renderer=new Renderer(canvas);this.ui=ui??new UI(document.querySelector('#app'));this.menuOpen=false;this.running=false;this.lastTime=0;this.frame=0;this.onResize=()=>{this.renderer.resize();this.updateCamera()};window.addEventListener('resize',this.onResize);this.resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(this.onResize):null;this.resizeObserver?.observe(canvas);this.onResize();this.ui.setStatus(this.world.label)}
+ getSaveLocation(){return {mapId:this.session.mapId,x:this.player.x,y:this.player.y,facing:this.player.facing,returnPositions:this.session.returnPositions.map(p=>({...p}))}}
+ restoreSaveLocation(location){
+  const map=this.session.registry.get(location.mapId);
+  if(!map || map.collidesRect(location.x,location.y,this.player.width,this.player.height))throw new Error('Invalid restored position');
+  this.session.mapId=location.mapId;this.session.returnPositions=location.returnPositions.map(p=>({...p}));
+  this.player.x=location.x;this.player.y=location.y;this.player.facing=location.facing;
+  // Suppress portal re-entry until the player moves to another tile.
+  const tx=Math.floor((this.player.x+this.player.width/2)/map.tileSize);
+  const ty=Math.floor((this.player.y+this.player.height/2)/map.tileSize);
+  this.session.lastPortalKey=`${location.mapId}:${tx}:${ty}`;
+  this.world=map;this.updateCamera();this.ui.setStatus(map.label);
+ }
+ resetSaveLocation(){const session=this.session;session.mapId='start-village';session.returnPositions=[];const spawn=session.spawn();this.restoreSaveLocation({...spawn,mapId:session.mapId,facing:'down',returnPositions:[]})}
  updateCamera(){this.camera.follow(this.player,this.world,this.renderer.width,this.renderer.height)}
  applyWorldEvent(e){if(!e)return null;if(e.type==='transition'){this.world=e.world;this.player.x=e.x;this.player.y=e.y;this.updateCamera();this.ui.setStatus(this.world.label)}else if(e.type==='dialog'){const dialog=this.onWorldEvent?.(e)??e;this.dialogComplete=typeof dialog.onComplete==='function'?dialog.onComplete:null;this.ui.showDialog(dialog);}else if(e.type==='blocked')this.ui.setStatus(e.reason);return e}
  setMenuOpen(open){this.menuOpen=Boolean(open);this.input.clear()}
