@@ -1,7 +1,8 @@
 import {createWorldRegistry} from './WorldRegistry.js';
 /** Map transitions are triggered by entering a portal tile, not by interaction. */
 export class WorldSession {
- constructor(registry=createWorldRegistry(),initialMap='start-village'){
+ constructor(registry=createWorldRegistry(),initialMap='start-village',battleLock=null){
+  this.battleLock=battleLock;
   this.registry=registry;this.mapId=initialMap;this.returnPositions=[];
   this.lastPortalKey=null;
   if(!registry.has(initialMap))throw new Error('Unknown initial map');
@@ -9,7 +10,7 @@ export class WorldSession {
  get world(){return this.registry.get(this.mapId)}
  spawn(){const s=this.world.spawn;return{x:s.x*this.world.tileSize,y:s.y*this.world.tileSize}}
  /** Called after movement. A portal fires once per tile entry, never while standing on it. */
- updatePosition(player){
+ updatePosition(player){if(this.battleLock?.isBattleActive())return null;
   const t=this.world.tileSize;
   const tx=Math.floor((player.x+player.width/2)/t),ty=Math.floor((player.y+player.height/2)/t);
   const key=`${this.mapId}:${tx}:${ty}`;
@@ -43,7 +44,7 @@ export class WorldSession {
   return{type:'transition',from,to:this.mapId,x:target.x,y:target.y,world:destination};
  }
  /** Targeted interaction remains reserved for NPCs and future objects. */
- interact(player){
+ interact(player){if(this.battleLock?.isBattleActive())return null;
   const t=this.world.tileSize,cx=player.x+player.width/2,cy=player.y+player.height/2;
   const offsets={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
   const [dx,dy]=offsets[player.facing]??offsets.down;

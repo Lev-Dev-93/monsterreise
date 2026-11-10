@@ -5,9 +5,11 @@ import {Renderer} from '../renderer/Renderer.js';
 import {WorldSession} from '../world/WorldSession.js';
 import {UI} from '../ui/UI.js';
 export class Game {
- constructor({canvas,controls,session=new WorldSession(),ui,onWorldEvent=e=>e}={}){this.onWorldEvent=onWorldEvent;this.dialogComplete=null;this.session=session;this.world=session.world;const s=session.spawn();this.player=new Player(s.x,s.y);if(this.world.collidesRect(s.x,s.y,this.player.width,this.player.height))throw Error('Spawn blocked');this.camera=new Camera();this.input=new Input(document,controls);this.renderer=new Renderer(canvas);this.ui=ui??new UI(document.querySelector('#app'));this.menuOpen=false;this.running=false;this.lastTime=0;this.frame=0;this.onResize=()=>{this.renderer.resize();this.updateCamera()};window.addEventListener('resize',this.onResize);this.resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(this.onResize):null;this.resizeObserver?.observe(canvas);this.onResize();this.ui.setStatus(this.world.label)}
+ constructor({canvas,controls,session=new WorldSession(),ui,onWorldEvent=e=>e,battleLock=null}={}){this.onWorldEvent=onWorldEvent;this.battleLock=battleLock;this.dialogComplete=null;this.centerHealEffect=0;this.session=session;this.world=session.world;const s=session.spawn();this.player=new Player(s.x,s.y);if(this.world.collidesRect(s.x,s.y,this.player.width,this.player.height))throw Error('Spawn blocked');this.camera=new Camera();this.input=new Input(document,controls);this.renderer=new Renderer(canvas);this.ui=ui??new UI(document.querySelector('#app'));this.menuOpen=false;this.running=false;this.lastTime=0;this.frame=0;this.onResize=()=>{this.renderer.resize();this.updateCamera()};window.addEventListener('resize',this.onResize);this.resizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(this.onResize):null;this.resizeObserver?.observe(canvas);this.onResize();this.ui.setStatus(this.world.label)}
+ isBattleActive(){return this.battleLock?.isBattleActive()===true}
  getSaveLocation(){return {mapId:this.session.mapId,x:this.player.x,y:this.player.y,facing:this.player.facing,returnPositions:this.session.returnPositions.map(p=>({...p}))}}
  restoreSaveLocation(location){
+  if(this.isBattleActive())return false;
   const map=this.session.registry.get(location.mapId);
   if(!map || map.collidesRect(location.x,location.y,this.player.width,this.player.height))throw new Error('Invalid restored position');
   this.session.mapId=location.mapId;this.session.returnPositions=location.returnPositions.map(p=>({...p}));
@@ -18,15 +20,15 @@ export class Game {
   this.session.lastPortalKey=`${location.mapId}:${tx}:${ty}`;
   this.world=map;this.updateCamera();this.ui.setStatus(map.label);
  }
- resetSaveLocation(){const session=this.session;session.mapId='start-village';session.returnPositions=[];const spawn=session.spawn();this.restoreSaveLocation({...spawn,mapId:session.mapId,facing:'down',returnPositions:[]})}
+ resetSaveLocation(){if(this.isBattleActive())return false;const session=this.session;session.mapId='start-village';session.returnPositions=[];const spawn=session.spawn();this.restoreSaveLocation({...spawn,mapId:session.mapId,facing:'down',returnPositions:[]})}
  updateCamera(){this.camera.follow(this.player,this.world,this.renderer.width,this.renderer.height)}
- applyWorldEvent(e){if(!e)return null;if(e.type==='transition'){this.world=e.world;this.player.x=e.x;this.player.y=e.y;this.updateCamera();this.ui.setStatus(this.world.label)}else if(e.type==='dialog'){const dialog=this.onWorldEvent?.(e)??e;this.dialogComplete=typeof dialog.onComplete==='function'?dialog.onComplete:null;this.ui.showDialog(dialog);}else if(e.type==='blocked')this.ui.setStatus(e.reason);return e}
+ applyWorldEvent(e){if(this.isBattleActive()||!e)return null;if(e.type==='transition'){this.world=e.world;this.centerHealEffect=0;this.player.x=e.x;this.player.y=e.y;this.updateCamera();this.ui.setStatus(this.world.label)}else if(e.type==='dialog'){const dialog=this.onWorldEvent?.(e)??e;this.dialogComplete=typeof dialog.onComplete==='function'?dialog.onComplete:null;this.ui.showDialog(dialog);if(dialog.centerHealSuccess===true)this.centerHealEffect=1.35;}else if(e.type==='blocked')this.ui.setStatus(e.reason);return e}
  setMenuOpen(open){this.menuOpen=Boolean(open);this.input.clear()}
- interact(){if(this.menuOpen)return null;if(this.ui.isDialogOpen()){this.ui.advanceDialog();if(!this.ui.isDialogOpen()){const complete=this.dialogComplete;this.dialogComplete=null;complete?.();}return {type:'dialog-advance'}}return this.applyWorldEvent(this.session.interact(this.player))}
- update(dt){if(this.menuOpen){this.input.clear();this.updateCamera();return}if(this.input.consumeInteract())this.interact();if(!this.menuOpen&&!this.ui.isDialogOpen()){this.player.update(dt,this.input.getVector(),this.world);this.applyWorldEvent(this.session.updatePosition(this.player))}this.updateCamera()}
+ interact(){if(this.menuOpen)return null;if(this.isBattleActive())return null;if(this.ui.isDialogOpen()){this.ui.advanceDialog();if(!this.ui.isDialogOpen()){const complete=this.dialogComplete;this.dialogComplete=null;complete?.();}return {type:'dialog-advance'}}return this.applyWorldEvent(this.session.interact(this.player))}
+ update(dt){if(this.menuOpen){this.input.clear();this.updateCamera();return}if(this.isBattleActive()){this.input.clear();this.updateCamera();return}if(this.input.consumeInteract())this.interact();if(!this.menuOpen&&!this.ui.isDialogOpen()){this.player.update(dt,this.input.getVector(),this.world);this.applyWorldEvent(this.session.updatePosition(this.player))}this.updateCamera()}
 
  start(){if(this.running)return;this.running=true;this.lastTime=0;this.frame=requestAnimationFrame(t=>this.tick(t))}
- tick(t){if(!this.running)return;const dt=this.lastTime?Math.min((t-this.lastTime)/1000,.05):0;this.lastTime=t;this.update(dt);this.renderer.render(this);this.frame=requestAnimationFrame(t=>this.tick(t))}
+ tick(t){if(!this.running)return;const dt=this.lastTime?Math.min((t-this.lastTime)/1000,.05):0;this.lastTime=t;this.centerHealEffect=Math.max(0,this.centerHealEffect-dt);this.update(dt);this.renderer.render(this);this.frame=requestAnimationFrame(t=>this.tick(t))}
  stop(){this.running=false;cancelAnimationFrame(this.frame);this.lastTime=0}
  destroy(){this.stop();this.input.destroy();window.removeEventListener('resize',this.onResize);this.resizeObserver?.disconnect()}
 }

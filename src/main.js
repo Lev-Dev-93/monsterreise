@@ -1,3 +1,4 @@
+import {BattleLock,bindTeamBattleLock} from './battle/BattleLock.js';
 import {sampleRegistry} from './pokemon/sampleData.js';
 import {createTeam} from './pokemon/Team.js';
 import {SaveSystem} from './save/SaveSystem.js';
@@ -12,19 +13,21 @@ import {WorldSession} from './world/WorldSession.js';
 import {ProfessorEncounter} from './dialog/ProfessorEncounter.js';
 import {centerWorldEvent} from './center/CenterWorldInteraction.js';
 const worldRegistry=createWorldRegistry();
+const battleLock=new BattleLock();
 const saveSystem=new SaveSystem({registry:sampleRegistry,worldRegistry});
 let activeSlot=1;
 let loaded=saveSystem.load(activeSlot);
 let team=loaded.status==='ok'?loaded.team:createTeam({registry:sampleRegistry});
+bindTeamBattleLock(team,battleLock);
 const saveStatus=document.querySelector('#save-status');
 function report(message){saveStatus.textContent=message;}
-function saveCurrent(){if(battleView?.isOpen()||testSaveMode?.isOpen()||game?.menuOpen||game?.ui.isDialogOpen()){report('Speichern während Kampf oder Dialog gesperrt.');return {status:'blocked'};}const result=saveSystem.save(activeSlot,team,game.getSaveLocation());report(result.status==='ok'?`Platz ${activeSlot} gespeichert.`:'Speichern fehlgeschlagen (Browserspeicher prüfen).');return result;}
+function saveCurrent(){if(battleLock.isBattleActive()||battleView?.isOpen()||testSaveMode?.isOpen()||game?.menuOpen||game?.ui.isDialogOpen()){report('Speichern während Kampf oder Dialog gesperrt.');return {status:'blocked'};}const result=saveSystem.save(activeSlot,team,game.getSaveLocation());report(result.status==='ok'?`Platz ${activeSlot} gespeichert.`:'Speichern fehlgeschlagen (Browserspeicher prüfen).');return result;}
 function loadSlot(slot){
-  if(battleView?.isOpen()||testSaveMode?.isOpen()){report('Speicherplatzwechsel während Kampf oder Testdialog gesperrt.');return {status:'blocked'};}
+  if(battleLock.isBattleActive()||battleView?.isOpen()||testSaveMode?.isOpen()){report('Speicherplatzwechsel während Kampf oder Testdialog gesperrt.');return {status:'blocked'};}
   const result=saveSystem.load(slot);
   if(result.status==='ok' || result.status==='empty'){
     activeSlot=slot; team=result.status==='ok'?result.team:createTeam({registry:sampleRegistry});
-    professor.team=team;pokemonMenus.team=team;battleView.team=team;
+    bindTeamBattleLock(team,battleLock);professor.team=team;pokemonMenus.team=team;battleView.team=team;
     if(result.location)game.restoreSaveLocation(result.location);else game.resetSaveLocation();
     if(pokemonMenus.isOpen())pokemonMenus.close();
     report(result.status==='ok'?`Platz ${slot} geladen.${result.locationStatus==='invalid'?' Ungültige Position: Startposition verwendet.':''}`:`Platz ${slot} ist leer (neues Team).`);
@@ -36,7 +39,7 @@ let pokemonMenus;
 let battleView;
 let testSaveMode;
 const professor=new ProfessorEncounter({team,openStarterSelection:()=>openProfessorStarterSelection()});
-const game=new Game({session:new WorldSession(worldRegistry),canvas:document.querySelector('#game'),controls:document.querySelector('#controls'),onWorldEvent:event=>centerWorldEvent(trainerWorldEvent(professor.handle(event),{team,startBattle:()=>battleView.openTrainerBattle()}),{team,canHeal:()=>!battleView?.isOpen()&&!testSaveMode?.isOpen()&&!game.menuOpen&&!game.ui.isDialogOpen(),speciesRegistry:sampleRegistry})});
+const game=new Game({session:new WorldSession(worldRegistry,'start-village',battleLock),battleLock,canvas:document.querySelector('#game'),controls:document.querySelector('#controls'),onWorldEvent:event=>centerWorldEvent(trainerWorldEvent(professor.handle(event),{team,startBattle:()=>battleView.openTrainerBattle()}),{team,canHeal:()=>!battleLock.isBattleActive()&&!battleView?.isOpen()&&!testSaveMode?.isOpen()&&!game.menuOpen&&!game.ui.isDialogOpen(),speciesRegistry:sampleRegistry})});
 if(loaded.status==='ok' && loaded.location)game.restoreSaveLocation(loaded.location);
 game.start();
 
@@ -53,12 +56,12 @@ report(loaded.status==='ok'?(loaded.locationStatus==='invalid'?'Platz 1 geladen;
 export {saveSystem,saveCurrent,loadSlot};
 
 // Temporärer, klar gekennzeichneter manueller Testkampf; keine wilden Begegnungen oder KI.
-battleView=new BattleView({root:document.querySelector('#app'),game,team,registry:sampleRegistry,onOpenChange:open=>{for(const id of ['save-slot','save-button','team-toggle','battle-test-toggle'])document.getElementById(id).disabled=open;}});
+battleView=new BattleView({root:document.querySelector('#app'),game,team,registry:sampleRegistry,battleLock,onOpenChange:open=>{for(const id of ['save-slot','save-button','team-toggle','battle-test-toggle'])document.getElementById(id).disabled=open;}});
 
-export {battleView};
+export {battleView,battleLock};
 
 // Auftrag 021: Testmodus ist isoliert und später durch Entfernen dieses Blocks rückbaubar.
 testSaveMode=new TestSaveMode({root:document.querySelector('#app'),saveSystem,registry:sampleRegistry,game,loadSlot,report,
-  canOpen:()=>!pokemonMenus.isOpen()&&!battleView.isOpen()&&!game.ui.isDialogOpen()&&!game.menuOpen,
+  canOpen:()=>!battleLock.isBattleActive()&&!pokemonMenus.isOpen()&&!battleView.isOpen()&&!game.ui.isDialogOpen()&&!game.menuOpen,
   onOpenChange:open=>{for(const id of ['save-slot','save-button','team-toggle','battle-test-toggle'])document.getElementById(id).disabled=open;}});
 export {testSaveMode};

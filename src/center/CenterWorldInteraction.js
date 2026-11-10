@@ -9,6 +9,6 @@ export function centerWorldEvent(event,{team,canHeal,speciesRegistry,moveRegistr
  if(team.getMembers().length===0)return {...event,lines:['Du hast noch keine Pokémon im Team.']};
  try{
   const result=healAtPokemonCenter({team,canHeal,calculateMaxHp:createClassicStatAdapters(speciesRegistry).maxHp,moveRegistry});
-  return {...event,lines:[result.healed?'Deine Pokémon sind wieder vollständig geheilt!':'Es konnten keine Pokémon geheilt werden.']};
+  return {...event,centerHealSuccess:result.healed===true,lines:[result.healed?'Deine Pokémon sind wieder vollständig geheilt!':'Es konnten keine Pokémon geheilt werden.']};
  }catch(error){return {...event,lines:['Die Heilung ist derzeit nicht möglich. Bitte versuche es später erneut.']};}
 }
