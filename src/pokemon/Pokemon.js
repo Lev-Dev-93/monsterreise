@@ -53,7 +53,8 @@ export function createPokemon({registry,speciesId,instanceId,level,experience=0,
   const fixed=origin==='starter'||shiny;
   if(fixed&&iv!==undefined)check(STAT_KEYS.every(k=>iv?.[k]===31)&&Object.keys(iv).length===6,'Starter/Shiny erfordert sechs perfekte IVs');
   const resolvedIV=fixed?perfectIVs():iv===undefined?randomIVs():stats(iv,'IV',{max:31});
-  const resolvedEV=ev===undefined?Object.fromEntries(STAT_KEYS.map(k=>[k,0])):stats(ev,'EV');
+  const resolvedEV=ev===undefined?Object.fromEntries(STAT_KEYS.map(k=>[k,0])):stats(ev,'EV',{max:252});
+  check(STAT_KEYS.reduce((sum,k)=>sum+resolvedEV[k],0)<=510,'EV-Gesamtgrenze 510 überschritten');
   check(Array.isArray(moveIds)&&moveIds.every(m=>typeof m==='string'&&m.length>0),'Attackenliste ungültig');
   check(nickname===null||typeof nickname==='string','Spitzname ungültig');
   check(status===null||typeof status==='string','Status ungültig');

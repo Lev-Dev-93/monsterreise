@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createRegistry,createPokemon} from '../src/pokemon/Pokemon.js';
+import {createBattle} from '../src/battle/Battle.js';
+const stats={hp:40,attack:40,defense:40,specialAttack:40,specialDefense:40,speed:40};
+const registry=createRegistry([{speciesId:'testmon',dexNumber:1,name:'Testmon',generation:1,types:['Normal'],baseStats:stats,starterEligible:true}]);
+const make=(id,hp=null)=>createPokemon({registry,speciesId:'testmon',instanceId:id,level:5,origin:'starter',moveIds:['probe'],currentHp:hp});
+const setup=(opts={})=>createBattle({playerPokemon:make('p'),opponentPokemon:make('o'),maxHp:()=>20,speed:p=>p.instanceId==='p'?10:5,damage:()=>4,...opts});
+test('Beginn: existierende Pokémon-Instanzen und KP',()=>{const p=make('p');const b=createBattle({playerPokemon:p,opponentPokemon:make('o'),maxHp:()=>20,speed:()=>1,damage:()=>1});assert.equal(b.pokemon.player,p);assert.equal(p.currentHp,20);assert.equal(b.round,0);});
+test('Runde: beide Aktionen, Reihenfolge, KP',()=>{const b=setup();b.submitAction('opponent',{type:'move',moveId:'probe'});assert.equal(b.round,0);const s=b.submitAction('player',{type:'move',moveId:'probe'});assert.equal(s.round,1);assert.equal(s.playerHp,16);assert.equal(s.opponentHp,16);assert.equal(s.events.find(e=>e.type==='round-start').first,'player');});
+test('Sieg: kampfbeendender Treffer verhindert Gegenangriff',()=>{const b=setup({damage:()=>25});const p=b.pokemon.player;b.submitAction('player',{type:'move',moveId:'probe'});const s=b.submitAction('opponent',{type:'move',moveId:'probe'});assert.equal(s.result,'player');assert.equal(p.currentHp,20);assert.equal(s.events.filter(e=>e.type==='move').length,1);});
+test('Ungültige Aktionen und Kampfende',()=>{const b=setup({damage:()=>25});assert.throws(()=>b.submitAction('player',{type:'move',moveId:'falsch'}));b.submitAction('player',{type:'move',moveId:'probe'});assert.throws(()=>b.submitAction('player',{type:'move',moveId:'probe'}));b.submitAction('opponent',{type:'move',moveId:'probe'});assert.throws(()=>b.submitAction('player',{type:'move',moveId:'probe'}));});
+test('Initiativegleichstand erfordert explizite Regel',()=>{const b=setup({speed:()=>5});b.submitAction('player',{type:'move',moveId:'probe'});assert.throws(()=>b.submitAction('opponent',{type:'move',moveId:'probe'}),/tieBreaker/);});
+test('Initiativegleichstand mit Regel',()=>{const b=setup({speed:()=>5,tieBreaker:()=> 'opponent'});b.submitAction('player',{type:'move',moveId:'probe'});const s=b.submitAction('opponent',{type:'move',moveId:'probe'});assert.equal(s.events.find(e=>e.type==='round-start').first,'opponent');});
+test('Kein negativer KP-Wert durch Überkill',()=>{const b=setup({damage:()=>999});b.submitAction('player',{type:'move',moveId:'probe'});assert.equal(b.submitAction('opponent',{type:'move',moveId:'probe'}).opponentHp,0);});

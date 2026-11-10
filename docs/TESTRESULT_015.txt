@@ -1,0 +1,596 @@
+
+> monsterreise-v0.1@0.3.1 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: door tile is visually aligned, open and registered
+ok 1 - door tile is visually aligned, open and registered
+  ---
+  duration_ms: 4.359098
+  type: 'test'
+  ...
+# Subtest: actual movement enters and leaves without bounce
+ok 2 - actual movement enters and leaves without bounce
+  ---
+  duration_ms: 2.684201
+  type: 'test'
+  ...
+# Subtest: exit remains walkable and blocked return does not repeat
+ok 3 - exit remains walkable and blocked return does not repeat
+  ---
+  duration_ms: 0.300855
+  type: 'test'
+  ...
+# Subtest: interaction key does not activate doorway but still activates NPC
+ok 4 - interaction key does not activate doorway but still activates NPC
+  ---
+  duration_ms: 0.427473
+  type: 'test'
+  ...
+# Subtest: Game movement transition resets camera
+ok 5 - Game movement transition resets camera
+  ---
+  duration_ms: 0.671564
+  type: 'test'
+  ...
+# Subtest: Beginn: existierende Pokémon-Instanzen und KP
+ok 6 - Beginn: existierende Pokémon-Instanzen und KP
+  ---
+  duration_ms: 4.777781
+  type: 'test'
+  ...
+# Subtest: Runde: beide Aktionen, Reihenfolge, KP
+ok 7 - Runde: beide Aktionen, Reihenfolge, KP
+  ---
+  duration_ms: 2.006186
+  type: 'test'
+  ...
+# Subtest: Sieg: kampfbeendender Treffer verhindert Gegenangriff
+ok 8 - Sieg: kampfbeendender Treffer verhindert Gegenangriff
+  ---
+  duration_ms: 0.435899
+  type: 'test'
+  ...
+# Subtest: Ungültige Aktionen und Kampfende
+ok 9 - Ungültige Aktionen und Kampfende
+  ---
+  duration_ms: 0.919151
+  type: 'test'
+  ...
+# Subtest: Initiativegleichstand erfordert explizite Regel
+ok 10 - Initiativegleichstand erfordert explizite Regel
+  ---
+  duration_ms: 1.614377
+  type: 'test'
+  ...
+# Subtest: Initiativegleichstand mit Regel
+ok 11 - Initiativegleichstand mit Regel
+  ---
+  duration_ms: 0.721951
+  type: 'test'
+  ...
+# Subtest: Kein negativer KP-Wert durch Überkill
+ok 12 - Kein negativer KP-Wert durch Überkill
+  ---
+  duration_ms: 0.45283
+  type: 'test'
+  ...
+# Subtest: Statusformeln und Wesen, EV floor, Grenzwerte
+ok 13 - Statusformeln und Wesen, EV floor, Grenzwerte
+  ---
+  duration_ms: 1.584774
+  type: 'test'
+  ...
+# Subtest: 18 Typen und 324 Einzelpaarungen mit gültigen Faktoren
+ok 14 - 18 Typen und 324 Einzelpaarungen mit gültigen Faktoren
+  ---
+  duration_ms: 0.880381
+  type: 'test'
+  ...
+# Subtest: Referenzschaden physisch/speziell, STAB, Krit, Zufall, Immunität
+ok 15 - Referenzschaden physisch/speziell, STAB, Krit, Zufall, Immunität
+  ---
+  duration_ms: 1.582991
+  type: 'test'
+  ...
+# Subtest: Priorität vor Initiative, Gleichstand per rng
+ok 16 - Priorität vor Initiative, Gleichstand per rng
+  ---
+  duration_ms: 1.893498
+  type: 'test'
+  ...
+# Subtest: Genauigkeit, AP-Verbrauch, ungültige und nicht unterstützte Aktionen
+ok 17 - Genauigkeit, AP-Verbrauch, ungültige und nicht unterstützte Aktionen
+  ---
+  duration_ms: 0.74383
+  type: 'test'
+  ...
+# Subtest: Sieg/Niederlage und AP erschöpft
+ok 18 - Sieg/Niederlage und AP erschöpft
+  ---
+  duration_ms: 1.186693
+  type: 'test'
+  ...
+# Subtest: test map dimensions and obstacle
+ok 19 - test map dimensions and obstacle
+  ---
+  duration_ms: 1.913852
+  type: 'test'
+  ...
+# Subtest: world boundaries block movement
+ok 20 - world boundaries block movement
+  ---
+  duration_ms: 0.236376
+  type: 'test'
+  ...
+# Subtest: movement speed and diagonal normalization
+ok 21 - movement speed and diagonal normalization
+  ---
+  duration_ms: 0.473533
+  type: 'test'
+  ...
+# Subtest: collision prevents passing walls
+ok 22 - collision prevents passing walls
+  ---
+  duration_ms: 0.131365
+  type: 'test'
+  ...
+# Subtest: sliding along wall remains possible
+ok 23 - sliding along wall remains possible
+  ---
+  duration_ms: 0.452908
+  type: 'test'
+  ...
+# Subtest: camera follows and clamps to map
+ok 24 - camera follows and clamps to map
+  ---
+  duration_ms: 0.338398
+  type: 'test'
+  ...
+# Subtest: native fullscreen enters and exits without fallback
+ok 25 - native fullscreen enters and exits without fallback
+  ---
+  duration_ms: 4.392841
+  type: 'test'
+  ...
+# Subtest: external browser fullscreen exit restores original layout
+ok 26 - external browser fullscreen exit restores original layout
+  ---
+  duration_ms: 0.413875
+  type: 'test'
+  ...
+# Subtest: iPhone no API uses reversible layout fallback, not browser fullscreen
+ok 27 - iPhone no API uses reversible layout fallback, not browser fullscreen
+  ---
+  duration_ms: 0.284669
+  type: 'test'
+  ...
+# Subtest: rejected fullscreen request falls back safely
+ok 28 - rejected fullscreen request falls back safely
+  ---
+  duration_ms: 0.787125
+  type: 'test'
+  ...
+# Subtest: cleanup removes listeners
+ok 29 - cleanup removes listeners
+  ---
+  duration_ms: 0.225669
+  type: 'test'
+  ...
+# Subtest: viewport-safe UI, responsive controls and canvas resize observer are present
+ok 30 - viewport-safe UI, responsive controls and canvas resize observer are present
+  ---
+  duration_ms: 0.820283
+  type: 'test'
+  ...
+# Subtest: starts in village at valid spawn
+ok 31 - starts in village at valid spawn
+  ---
+  duration_ms: 2.996797
+  type: 'test'
+  ...
+# Subtest: Game automatic transitions both ways reset camera
+ok 32 - Game automatic transitions both ways reset camera
+  ---
+  duration_ms: 0.73661
+  type: 'test'
+  ...
+# Subtest: NPC event forwarded and dialog advance
+ok 33 - NPC event forwarded and dialog advance
+  ---
+  duration_ms: 0.610227
+  type: 'test'
+  ...
+# Subtest: keyboard interaction is edge-triggered
+ok 34 - keyboard interaction is edge-triggered
+  ---
+  duration_ms: 0.903231
+  type: 'test'
+  ...
+# Subtest: Sechs Testarten vorhanden
+ok 35 - Sechs Testarten vorhanden
+  ---
+  duration_ms: 0.931479
+  type: 'test'
+  ...
+# Subtest: Basiswerte und Typen lesbar
+ok 36 - Basiswerte und Typen lesbar
+  ---
+  duration_ms: 0.675369
+  type: 'test'
+  ...
+# Subtest: Starterauswahl schließt Lucario und Mewtu aus
+ok 37 - Starterauswahl schließt Lucario und Mewtu aus
+  ---
+  duration_ms: 0.270414
+  type: 'test'
+  ...
+# Subtest: Starter erhalten sechs perfekte IVs
+ok 38 - Starter erhalten sechs perfekte IVs
+  ---
+  duration_ms: 0.330661
+  type: 'test'
+  ...
+# Subtest: Shiny unabhängig von Herkunft mit perfekten IVs
+ok 39 - Shiny unabhängig von Herkunft mit perfekten IVs
+  ---
+  duration_ms: 0.144608
+  type: 'test'
+  ...
+# Subtest: Wilde IVs im Bereich 0 bis 31
+ok 40 - Wilde IVs im Bereich 0 bis 31
+  ---
+  duration_ms: 0.306778
+  type: 'test'
+  ...
+# Subtest: Ungültige Starter und manipulierte Shiny-IVs werden abgewiesen
+ok 41 - Ungültige Starter und manipulierte Shiny-IVs werden abgewiesen
+  ---
+  duration_ms: 0.278218
+  type: 'test'
+  ...
+# Subtest: Serialisierung und Laden erhalten individuelle Werte
+ok 42 - Serialisierung und Laden erhalten individuelle Werte
+  ---
+  duration_ms: 0.353747
+  type: 'test'
+  ...
+# Subtest: Entwicklungsverweise ohne erfundene Bedingungen
+ok 43 - Entwicklungsverweise ohne erfundene Bedingungen
+  ---
+  duration_ms: 0.409708
+  type: 'test'
+  ...
+# Subtest: Unbekannte Arten und doppelte IDs abweisen
+ok 44 - Unbekannte Arten und doppelte IDs abweisen
+  ---
+  duration_ms: 0.574144
+  type: 'test'
+  ...
+# Subtest: Stammdaten bleiben bei Instanzänderungen unverändert
+ok 45 - Stammdaten bleiben bei Instanzänderungen unverändert
+  ---
+  duration_ms: 0.218641
+  type: 'test'
+  ...
+# Subtest: Ungültige IV-Zahlen und RNG abweisen
+ok 46 - Ungültige IV-Zahlen und RNG abweisen
+  ---
+  duration_ms: 0.162004
+  type: 'test'
+  ...
+# Subtest: Attackendaten sind validiert und abrufbar
+ok 47 - Attackendaten sind validiert und abrufbar
+  ---
+  duration_ms: 1.115197
+  type: 'test'
+  ...
+# Subtest: Ungültige Attacke wird abgelehnt
+ok 48 - Ungültige Attacke wird abgelehnt
+  ---
+  duration_ms: 0.416851
+  type: 'test'
+  ...
+# Subtest: Doppelte Attacken-IDs werden abgelehnt
+ok 49 - Doppelte Attacken-IDs werden abgelehnt
+  ---
+  duration_ms: 0.414545
+  type: 'test'
+  ...
+# Subtest: Kampfwert-Eingaben bleiben getrennt von Stammdaten
+ok 50 - Kampfwert-Eingaben bleiben getrennt von Stammdaten
+  ---
+  duration_ms: 0.591566
+  type: 'test'
+  ...
+# Subtest: Keine implizite Statuswertformel
+ok 51 - Keine implizite Statuswertformel
+  ---
+  duration_ms: 0.72676
+  type: 'test'
+  ...
+# Subtest: Injizierte Statuswertformel liefert sechs Werte
+ok 52 - Injizierte Statuswertformel liefert sechs Werte
+  ---
+  duration_ms: 0.416423
+  type: 'test'
+  ...
+# Subtest: Ungültiges Formelresultat wird abgelehnt
+ok 53 - Ungültiges Formelresultat wird abgelehnt
+  ---
+  duration_ms: 0.388165
+  type: 'test'
+  ...
+# Subtest: Typenfaktor verlangt explizite Regel
+ok 54 - Typenfaktor verlangt explizite Regel
+  ---
+  duration_ms: 0.158209
+  type: 'test'
+  ...
+# Subtest: Typenfaktor wird nur delegiert
+ok 55 - Typenfaktor wird nur delegiert
+  ---
+  duration_ms: 0.252804
+  type: 'test'
+  ...
+# Subtest: Battle 013 nutzt bestehende Instanzen und Adapter
+ok 56 - Battle 013 nutzt bestehende Instanzen und Adapter
+  ---
+  duration_ms: 2.617486
+  type: 'test'
+  ...
+# Subtest: Vorhandenes Speicherformat bleibt erhalten
+ok 57 - Vorhandenes Speicherformat bleibt erhalten
+  ---
+  duration_ms: 1.066483
+  type: 'test'
+  ...
+# Subtest: Attackendaten ändern Pokémon-Instanz nicht
+ok 58 - Attackendaten ändern Pokémon-Instanz nicht
+  ---
+  duration_ms: 0.21951
+  type: 'test'
+  ...
+# Subtest: Professor-NPC ist erreichbar, blockiert seine Kachel und lässt Portale bestehen
+ok 59 - Professor-NPC ist erreichbar, blockiert seine Kachel und lässt Portale bestehen
+  ---
+  duration_ms: 2.528036
+  type: 'test'
+  ...
+# Subtest: Dialog startet vorhandenen Hook erst nach Abschluss und nur vor Startervergabe
+ok 60 - Dialog startet vorhandenen Hook erst nach Abschluss und nur vor Startervergabe
+  ---
+  duration_ms: 0.998578
+  type: 'test'
+  ...
+# Subtest: Dialogabschluss und Menü verhindern Bewegung sowie automatische Übergänge
+ok 61 - Dialogabschluss und Menü verhindern Bewegung sowie automatische Übergänge
+  ---
+  duration_ms: 0.129012
+  type: 'test'
+  ...
+# Subtest: Game integriert Dialogabschluss mit Hook und sperrt Bewegung während des Menüs
+ok 62 - Game integriert Dialogabschluss mit Hook und sperrt Bewegung während des Menüs
+  ---
+  duration_ms: 0.736361
+  type: 'test'
+  ...
+# Subtest: roundtrip preserves Pokémon, IV, starter flag and blocks second starter
+ok 63 - roundtrip preserves Pokémon, IV, starter flag and blocks second starter
+  ---
+  duration_ms: 3.440008
+  type: 'test'
+  ...
+# Subtest: starter flag persists even if original starter removed
+ok 64 - starter flag persists even if original starter removed
+  ---
+  duration_ms: 0.396732
+  type: 'test'
+  ...
+# Subtest: three independent slots; empty slot
+ok 65 - three independent slots; empty slot
+  ---
+  duration_ms: 0.388209
+  type: 'test'
+  ...
+# Subtest: invalid JSON, incompatible schema and tampered Pokémon do not overwrite stored bytes
+ok 66 - invalid JSON, incompatible schema and tampered Pokémon do not overwrite stored bytes
+  ---
+  duration_ms: 0.347284
+  type: 'test'
+  ...
+# Subtest: storage failures and slot range handled safely
+ok 67 - storage failures and slot range handled safely
+  ---
+  duration_ms: 0.283885
+  type: 'test'
+  ...
+# Subtest: roundtrip preserves position, direction, Pokémon and starter flag in slot 1
+ok 68 - roundtrip preserves position, direction, Pokémon and starter flag in slot 1
+  ---
+  duration_ms: 4.82385
+  type: 'test'
+  ...
+# Subtest: three slots have independent locations and teams
+ok 69 - three slots have independent locations and teams
+  ---
+  duration_ms: 3.005519
+  type: 'test'
+  ...
+# Subtest: invalid and blocked locations retain team and do not rewrite stored data
+ok 70 - invalid and blocked locations retain team and do not rewrite stored data
+  ---
+  duration_ms: 1.872341
+  type: 'test'
+  ...
+# Subtest: legacy v011 team-only saves load with default spawn fallback
+ok 71 - legacy v011 team-only saves load with default spawn fallback
+  ---
+  duration_ms: 0.512083
+  type: 'test'
+  ...
+# Subtest: loaded indoor return stack permits exit and portal does not bounce
+ok 72 - loaded indoor return stack permits exit and portal does not bounce
+  ---
+  duration_ms: 0.888427
+  type: 'test'
+  ...
+# Subtest: leeres Team und feste Grenze
+ok 73 - leeres Team und feste Grenze
+  ---
+  duration_ms: 3.223528
+  type: 'test'
+  ...
+# Subtest: Starter nur einmal und sechs perfekte IV
+ok 74 - Starter nur einmal und sechs perfekte IV
+  ---
+  duration_ms: 0.556544
+  type: 'test'
+  ...
+# Subtest: unzulässige Starter und ungültige Level bleiben ohne Effekt
+ok 75 - unzulässige Starter und ungültige Level bleiben ohne Effekt
+  ---
+  duration_ms: 0.497835
+  type: 'test'
+  ...
+# Subtest: keine doppelten IDs, keine Starter über addMember
+ok 76 - keine doppelten IDs, keine Starter über addMember
+  ---
+  duration_ms: 0.873707
+  type: 'test'
+  ...
+# Subtest: Lesen als Kopie, Reihenfolge, Entfernen
+ok 77 - Lesen als Kopie, Reihenfolge, Entfernen
+  ---
+  duration_ms: 1.80368
+  type: 'test'
+  ...
+# Subtest: Save-Roundtrip verhindert erneute Startervergabe nach Entfernen
+ok 78 - Save-Roundtrip verhindert erneute Startervergabe nach Entfernen
+  ---
+  duration_ms: 0.499242
+  type: 'test'
+  ...
+# Subtest: fehlerhafte Save-Daten zurückweisen
+ok 79 - fehlerhafte Save-Daten zurückweisen
+  ---
+  duration_ms: 0.873106
+  type: 'test'
+  ...
+# Subtest: holding a direction retains continuous movement and releases on pointerup
+ok 80 - holding a direction retains continuous movement and releases on pointerup
+  ---
+  duration_ms: 4.334731
+  type: 'test'
+  ...
+# Subtest: cancel and lost capture release touches even with different event target
+ok 81 - cancel and lost capture release touches even with different event target
+  ---
+  duration_ms: 0.256476
+  type: 'test'
+  ...
+# Subtest: multitouch and blur release all held directions
+ok 82 - multitouch and blur release all held directions
+  ---
+  duration_ms: 0.358729
+  type: 'test'
+  ...
+# Subtest: action fires once per hold and is available after release
+ok 83 - action fires once per hold and is available after release
+  ---
+  duration_ms: 0.217657
+  type: 'test'
+  ...
+# Subtest: Safari context menu and selection suppressed only on controls
+ok 84 - Safari context menu and selection suppressed only on controls
+  ---
+  duration_ms: 0.371283
+  type: 'test'
+  ...
+# Subtest: Safari CSS protection scoped to control buttons
+ok 85 - Safari CSS protection scoped to control buttons
+  ---
+  duration_ms: 0.827099
+  type: 'test'
+  ...
+# Subtest: Starterliste verwendet nur Registry-Berechtigung und zeigt keine unzulässigen Arten
+ok 86 - Starterliste verwendet nur Registry-Berechtigung und zeigt keine unzulässigen Arten
+  ---
+  duration_ms: 1.769926
+  type: 'test'
+  ...
+# Subtest: Startervergabe nutzt Team und Level 5, verhindert zweite Vergabe
+ok 87 - Startervergabe nutzt Team und Level 5, verhindert zweite Vergabe
+  ---
+  duration_ms: 0.85342
+  type: 'test'
+  ...
+# Subtest: Teamansicht zeigt Art, Level, Typ und vorhandene Statusdaten
+ok 88 - Teamansicht zeigt Art, Level, Typ und vorhandene Statusdaten
+  ---
+  duration_ms: 0.424307
+  type: 'test'
+  ...
+# Subtest: Menüöffnung und Schließen signalisieren Eingabesperre
+ok 89 - Menüöffnung und Schließen signalisieren Eingabesperre
+  ---
+  duration_ms: 0.855694
+  type: 'test'
+  ...
+# Subtest: Spielintegration sperrt Bewegung, Interaktion und Portalprüfung während Menü
+ok 90 - Spielintegration sperrt Bewegung, Interaktion und Portalprüfung während Menü
+  ---
+  duration_ms: 0.52776
+  type: 'test'
+  ...
+# Subtest: Professor-Auslösung ist nur vorbereiteter Hook, kein automatischer Spielstart
+ok 91 - Professor-Auslösung ist nur vorbereiteter Hook, kein automatischer Spielstart
+  ---
+  duration_ms: 0.278891
+  type: 'test'
+  ...
+# Subtest: village and interior are valid maps
+ok 92 - village and interior are valid maps
+  ---
+  duration_ms: 1.472802
+  type: 'test'
+  ...
+# Subtest: trees, buildings, well, NPCs and boundaries collide
+ok 93 - trees, buildings, well, NPCs and boundaries collide
+  ---
+  duration_ms: 0.374601
+  type: 'test'
+  ...
+# Subtest: v0.1 player movement respects village obstacles
+ok 94 - v0.1 player movement respects village obstacles
+  ---
+  duration_ms: 0.55839
+  type: 'test'
+  ...
+# Subtest: automatic enter and leave use safe spawn tiles
+ok 95 - automatic enter and leave use safe spawn tiles
+  ---
+  duration_ms: 1.391829
+  type: 'test'
+  ...
+# Subtest: dialog requires adjacent tile and correct facing
+ok 96 - dialog requires adjacent tile and correct facing
+  ---
+  duration_ms: 0.436519
+  type: 'test'
+  ...
+# Subtest: transition is blocked without return state
+ok 97 - transition is blocked without return state
+  ---
+  duration_ms: 0.159243
+  type: 'test'
+  ...
+1..97
+# tests 97
+# suites 0
+# pass 97
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 518.612641

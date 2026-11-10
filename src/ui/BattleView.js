@@ -1,0 +1,85 @@
+/** Auftrag 016: ausschließlich Anzeige und Bedienung einer bestehenden Battle-Sitzung. */
+import {createBattle} from '../battle/Battle.js';
+import {createClassicBattleOptions} from '../battle/BattleRules.js';
+import {createPokemon} from '../pokemon/Pokemon.js';
+import {sampleMoveRegistry} from '../pokemon/sampleMoves.js';
+
+const supported = move => move && move.category !== 'status' && move.effectId === null && move.power > 0;
+const label = (registry,p) => p.nickname || registry.get(p.speciesId)?.name || p.speciesId;
+export function eventMessage(event, registry, battle, moves) {
+  if(event.type==='battle-start') return 'Testkampf gestartet.';
+  if(event.type==='round-start') return `Runde ${event.round} beginnt.`;
+  if(event.type==='move-miss') return `${label(registry,battle.pokemon[event.side])}: ${moves.get(event.moveId)?.name || event.moveId} verfehlt!`;
+  if(event.type==='move') return `${label(registry,battle.pokemon[event.side])} setzt ${moves.get(event.moveId)?.name || event.moveId} ein: ${event.damage} KP Schaden.`;
+  if(event.type==='battle-end') return event.result==='draw'?'Unentschieden.':event.result==='player'?'Testkampf gewonnen.':'Testkampf verloren.';
+  return null;
+}
+export class BattleView {
+  constructor({root,game,team,registry,moveRegistry=sampleMoveRegistry}){
+    this.root=root;this.game=game;this.team=team;this.registry=registry;this.moveRegistry=moveRegistry;
+    this.panel=root.querySelector('#battle-panel');this.content=root.querySelector('#battle-content');
+    this.openButton=root.querySelector('#battle-test-toggle');this.closeButton=root.querySelector('#battle-close');
+    this.openButton.addEventListener('click',()=>this.openTestBattle());
+    this.closeButton.addEventListener('click',()=>this.close());
+    this.onKey=e=>{if(this.isOpen()&&e.key==='Escape'){e.preventDefault();this.close();}};
+    document.addEventListener('keydown',this.onKey);
+    this.battle=null;this.seen=0;this.log=[];
+  }
+  isOpen(){return !this.panel.hidden;}
+  openTestBattle(){
+    if(this.isOpen()||this.game.ui.isDialogOpen()||this.game.menuOpen)return false;
+    const member=this.team.getMembers()[0];
+    if(!member){this.openButton.title='Zuerst beim Professor einen Starter wählen';return false;}
+    // Separate Testinstanzen: weder Team-KP noch gespeicherte Attacken verändern.
+    const player=createPokemon({...member,registry:this.registry,instanceId:'battle-test-player',currentHp:null,moveIds:['tackle','scratch']});
+    const opponent=createPokemon({registry:this.registry,speciesId:'eevee',instanceId:'battle-test-opponent',level:5,moveIds:['tackle'],currentHp:null});
+    this.battle=createBattle({playerPokemon:player,opponentPokemon:opponent,...createClassicBattleOptions({speciesRegistry:this.registry,moveRegistry:this.moveRegistry})});
+    this.seen=0;this.log=[];this.panel.hidden=false;this.game.setMenuOpen(true);this.render();this.closeButton.focus();return true;
+  }
+  close(){if(!this.isOpen())return;this.panel.hidden=true;this.battle=null;this.game.setMenuOpen(false);this.openButton.focus();}
+  choose(side,moveId){
+    if(!this.isOpen()||!this.battle||this.battle.finished)return false;
+    const move=this.moveRegistry.get(moveId),state=this.battle.getState();
+    if(!supported(move)||state.pendingSides.includes(side)||!this.battle.pokemon[side].moveIds.includes(moveId)||state.remainingPp[side][moveId]<=0)return false;
+    this.battle.submitAction(side,{type:'move',moveId});this.render();return true;
+  }
+  element(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
+  render(){
+    const b=this.battle;if(!b)return;
+    const state=b.getState();this.content.replaceChildren();
+    const arena=this.element('div','battle-arena');
+    for(const side of ['opponent','player']){
+      const p=b.pokemon[side],species=this.registry.get(p.speciesId),hp=side==='player'?state.playerHp:state.opponentHp,max=b.maxHp[side];
+      const card=this.element('section','battle-combatant');card.setAttribute('aria-label',side==='player'?'Eigenes Pokémon':'Gegnerisches Pokémon');
+      card.append(this.element('div','battle-sprite','?'));
+      const info=this.element('div','battle-combatant-info');
+      info.append(this.element('strong','',`${label(this.registry,p)} · Lv. ${p.level}`));
+      info.append(this.element('span','',`Typ: ${species?.types.join(' / ')||'Unbekannt'}`));
+      info.append(this.element('span','',`KP: ${hp} / ${max}`));
+      const meter=this.element('progress','battle-hp');meter.max=max;meter.value=hp;meter.setAttribute('aria-label',`${label(this.registry,p)} KP`);info.append(meter);card.append(info);arena.append(card);
+    }
+    this.content.append(arena);
+    const moves=this.element('div','battle-move-area');
+    for(const side of ['player','opponent']){
+      const section=this.element('section','battle-moves');
+      section.append(this.element('h3','',side==='player'?'Deine Attacke wählen':'Teststeuerung: gegnerische Attacke wählen (keine KI)'));
+      const list=this.element('div','battle-move-grid');
+      for(const id of b.pokemon[side].moveIds){
+        const move=this.moveRegistry.get(id);const button=this.element('button','battle-move',`${move?.name||id} · ${move?.type||'?'} · AP ${state.remainingPp[side][id]??'–'}/${move?.pp??'–'}`);
+        button.type='button';button.disabled=state.finished||state.pendingSides.includes(side)||!supported(move)||(state.remainingPp[side][id]??0)<=0;
+        if(!supported(move))button.title='Attackeneffekt noch nicht unterstützt';
+        button.addEventListener('click',()=>this.choose(side,id));list.append(button);
+      }
+      section.append(list);moves.append(section);
+    }
+    this.content.append(moves);
+    for(const event of state.events.slice(this.seen)){const msg=eventMessage(event,this.registry,b,this.moveRegistry);if(msg)this.log.push(msg);}
+    this.seen=state.events.length;
+    const log=this.element('section','battle-log');log.setAttribute('aria-label','Kampfmeldungen');log.setAttribute('role','log');log.setAttribute('aria-live','polite');
+    for(const msg of this.log.slice(-8))log.append(this.element('p','',msg));
+    this.content.append(log);
+    if(state.finished)this.content.append(this.element('p','battle-result','Testkampf beendet. Mit „Schließen“ zur Welt zurückkehren.'));
+    else if(state.pendingSides.length===1)this.content.append(this.element('p','battle-hint','Aktion vorgemerkt. Für diesen Testkampf die andere Seite manuell auswählen.'));
+  }
+  destroy(){document.removeEventListener('keydown',this.onKey);}
+}
