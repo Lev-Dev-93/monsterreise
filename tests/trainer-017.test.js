@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createTeam} from '../src/pokemon/Team.js';
+import {sampleRegistry} from '../src/pokemon/sampleData.js';
+import {sampleMoveRegistry} from '../src/pokemon/sampleMoves.js';
+import {createTrainerTestBattle,chooseOpponentMove,trainerWorldEvent,TEST_TRAINER_ID,firstBattleReady} from '../src/battle/TrainerBattle.js';
+import {startVillage} from '../src/world/maps/startVillage.js';
+const setup=()=>{const team=createTeam({registry:sampleRegistry});team.assignStarter({speciesId:'charmander',instanceId:'starter017',level:5});return team;};
+test('Testtrainer ist vorläufig und als erreichbarer NPC im Dorf eingetragen',()=>{assert.ok(startVillage.npcs.some(n=>n.id===TEST_TRAINER_ID&&n.placeholder));});
+test('Dialog startet Kampf erst nach Abschluss, nur mit kampffähigem Team',()=>{let started=0;const team=setup();const event=trainerWorldEvent({type:'dialog',npcId:TEST_TRAINER_ID,lines:[]},{team,startBattle:()=>started++});assert.equal(started,0);event.onComplete();assert.equal(started,1);assert.equal(trainerWorldEvent({type:'dialog',npcId:TEST_TRAINER_ID},{team:createTeam({registry:sampleRegistry}),startBattle:()=>started++}).onComplete,undefined);});
+test('Trainerkampf nutzt Teammitglied und bestehende Battle-Engine ohne Teamänderung',()=>{const team=setup(),before=team.toSaveData();const battle=createTrainerTestBattle({team,registry:sampleRegistry,moveRegistry:sampleMoveRegistry});assert.equal(battle.pokemon.player.speciesId,'charmander');assert.equal(battle.pokemon.opponent.speciesId,'eevee');assert.deepEqual(team.toSaveData(),before);});
+test('KI wählt gültige Attacke automatisch, beendet Runden und respektiert Ende',()=>{const battle=createTrainerTestBattle({team:setup(),registry:sampleRegistry,moveRegistry:sampleMoveRegistry});let turns=0;while(!battle.finished&&turns++<70){battle.submitAction('player',{type:'move',moveId:'scratch'});const reply=chooseOpponentMove(battle,sampleMoveRegistry);assert.equal(reply,'tackle');battle.submitAction('opponent',{type:'move',moveId:reply});}assert.equal(battle.finished,true);assert.equal(chooseOpponentMove(battle,sampleMoveRegistry),null);});
+test('Eingabesperre, Weltposition und Gegnersteuerung sind im UI verdrahtet',()=>{const view=readFileSync(new URL('../src/ui/BattleView.js',import.meta.url),'utf8');const main=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');assert.match(view,/this\.game\.setMenuOpen\(true\)/);assert.match(view,/this\.game\.setMenuOpen\(false\)/);assert.match(view,/this\.trainerMode\?\['player'\]/);assert.match(view,/chooseOpponentMove/);assert.match(view,/this\.trainerMode&&!this\.battle\?\.finished/);assert.match(main,/trainerWorldEvent/);assert.match(main,/onOpenChange:open=>/);});
+test('Nicht zugehörige Weltinteraktionen bleiben unverändert',()=>{const e={type:'dialog',npcId:'professor-test'};assert.equal(trainerWorldEvent(e,{team:setup(),startBattle:()=>{}}),e);});

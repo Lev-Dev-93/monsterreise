@@ -4,6 +4,7 @@ import {SaveSystem} from './save/SaveSystem.js';
 import {PokemonMenus} from './ui/PokemonMenus.js';
 import {Fullscreen} from './ui/Fullscreen.js';
 import {BattleView} from './ui/BattleView.js';
+import {trainerWorldEvent} from './battle/TrainerBattle.js';
 import {Game} from './core/Game.js';
 import {createWorldRegistry} from './world/WorldRegistry.js';
 import {WorldSession} from './world/WorldSession.js';
@@ -29,8 +30,9 @@ function loadSlot(slot){
   return result;
 }
 let pokemonMenus;
+let battleView;
 const professor=new ProfessorEncounter({team,openStarterSelection:()=>openProfessorStarterSelection()});
-const game=new Game({session:new WorldSession(worldRegistry),canvas:document.querySelector('#game'),controls:document.querySelector('#controls'),onWorldEvent:event=>professor.handle(event)});
+const game=new Game({session:new WorldSession(worldRegistry),canvas:document.querySelector('#game'),controls:document.querySelector('#controls'),onWorldEvent:event=>trainerWorldEvent(professor.handle(event),{team,startBattle:()=>battleView.openTrainerBattle()})});
 if(loaded.status==='ok' && loaded.location)game.restoreSaveLocation(loaded.location);
 game.start();
 
@@ -42,9 +44,11 @@ export function openProfessorStarterSelection(){return pokemonMenus.openStarterS
 export {team,pokemonMenus};
 
 document.querySelector('#save-slot').addEventListener('change',e=>loadSlot(Number(e.target.value)));
-document.querySelector('#save-button').addEventListener('click',()=>{if(!game.ui.isDialogOpen()&&!pokemonMenus.isOpen())saveCurrent();else report('Während Dialog oder Menü nicht speichern.');});
+document.querySelector('#save-button').addEventListener('click',()=>{if(!game.ui.isDialogOpen()&&!pokemonMenus.isOpen()&&!battleView.isOpen())saveCurrent();else report('Während Dialog oder Menü nicht speichern.');});
 report(loaded.status==='ok'?(loaded.locationStatus==='invalid'?'Platz 1 geladen; ungültige Position, Startposition verwendet.':'Platz 1 geladen.'):loaded.status==='empty'?'Platz 1 ist leer.':`Platz 1 nicht geladen: ${loaded.status}. Daten bleiben erhalten.`);
 export {saveSystem,saveCurrent,loadSlot};
 
 // Temporärer, klar gekennzeichneter manueller Testkampf; keine wilden Begegnungen oder KI.
-export const battleView=new BattleView({root:document.querySelector('#app'),game,team,registry:sampleRegistry});
+battleView=new BattleView({root:document.querySelector('#app'),game,team,registry:sampleRegistry,onOpenChange:open=>{for(const id of ['save-slot','save-button','team-toggle','battle-test-toggle'])document.getElementById(id).disabled=open;}});
+
+export {battleView};

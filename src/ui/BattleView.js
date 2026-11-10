@@ -3,6 +3,7 @@ import {createBattle} from '../battle/Battle.js';
 import {createClassicBattleOptions} from '../battle/BattleRules.js';
 import {createPokemon} from '../pokemon/Pokemon.js';
 import {sampleMoveRegistry} from '../pokemon/sampleMoves.js';
+import {chooseOpponentMove,createTrainerTestBattle} from '../battle/TrainerBattle.js';
 
 const supported = move => move && move.category !== 'status' && move.effectId === null && move.power > 0;
 const label = (registry,p) => p.nickname || registry.get(p.speciesId)?.name || p.speciesId;
@@ -15,33 +16,42 @@ export function eventMessage(event, registry, battle, moves) {
   return null;
 }
 export class BattleView {
-  constructor({root,game,team,registry,moveRegistry=sampleMoveRegistry}){
-    this.root=root;this.game=game;this.team=team;this.registry=registry;this.moveRegistry=moveRegistry;
+  constructor({root,game,team,registry,moveRegistry=sampleMoveRegistry,onOpenChange=()=>{}}){
+    this.root=root;this.game=game;this.team=team;this.registry=registry;this.moveRegistry=moveRegistry;this.onOpenChange=onOpenChange;
     this.panel=root.querySelector('#battle-panel');this.content=root.querySelector('#battle-content');
     this.openButton=root.querySelector('#battle-test-toggle');this.closeButton=root.querySelector('#battle-close');
-    this.openButton.addEventListener('click',()=>this.openTestBattle());
+    this.openButton?.addEventListener('click',()=>this.openTestBattle());
     this.closeButton.addEventListener('click',()=>this.close());
-    this.onKey=e=>{if(this.isOpen()&&e.key==='Escape'){e.preventDefault();this.close();}};
+    this.onKey=e=>{if(this.isOpen()&&e.key==='Escape'){e.preventDefault();if(this.battle?.finished)this.close();}};
     document.addEventListener('keydown',this.onKey);
-    this.battle=null;this.seen=0;this.log=[];
+    this.battle=null;this.seen=0;this.log=[];this.trainerMode=false;
   }
   isOpen(){return !this.panel.hidden;}
+  openTrainerBattle(){
+    if(this.isOpen()||this.game.ui.isDialogOpen()||this.game.menuOpen)return false;
+    const battle=createTrainerTestBattle({team:this.team,registry:this.registry,moveRegistry:this.moveRegistry});
+    if(!battle)return false;
+    this.trainerMode=true;this.battle=battle;this.seen=0;this.log=[];
+    this.panel.hidden=false;this.game.setMenuOpen(true);this.onOpenChange(true);this.render();this.closeButton.focus();return true;
+  }
   openTestBattle(){
     if(this.isOpen()||this.game.ui.isDialogOpen()||this.game.menuOpen)return false;
     const member=this.team.getMembers()[0];
-    if(!member){this.openButton.title='Zuerst beim Professor einen Starter wählen';return false;}
+    if(!member){if(this.openButton)this.openButton.title='Zuerst beim Professor einen Starter wählen';return false;}
     // Separate Testinstanzen: weder Team-KP noch gespeicherte Attacken verändern.
     const player=createPokemon({...member,registry:this.registry,instanceId:'battle-test-player',currentHp:null,moveIds:['tackle','scratch']});
     const opponent=createPokemon({registry:this.registry,speciesId:'eevee',instanceId:'battle-test-opponent',level:5,moveIds:['tackle'],currentHp:null});
     this.battle=createBattle({playerPokemon:player,opponentPokemon:opponent,...createClassicBattleOptions({speciesRegistry:this.registry,moveRegistry:this.moveRegistry})});
-    this.seen=0;this.log=[];this.panel.hidden=false;this.game.setMenuOpen(true);this.render();this.closeButton.focus();return true;
+    this.trainerMode=false;this.seen=0;this.log=[];this.panel.hidden=false;this.game.setMenuOpen(true);this.onOpenChange(true);this.render();this.closeButton.focus();return true;
   }
-  close(){if(!this.isOpen())return;this.panel.hidden=true;this.battle=null;this.game.setMenuOpen(false);this.openButton.focus();}
+  close(){if(!this.isOpen()||(this.trainerMode&&!this.battle?.finished))return false;this.panel.hidden=true;this.battle=null;this.trainerMode=false;this.game.setMenuOpen(false);this.onOpenChange(false);this.game.input.clear();this.game.renderer.canvas?.focus?.();return true;}
   choose(side,moveId){
     if(!this.isOpen()||!this.battle||this.battle.finished)return false;
     const move=this.moveRegistry.get(moveId),state=this.battle.getState();
     if(!supported(move)||state.pendingSides.includes(side)||!this.battle.pokemon[side].moveIds.includes(moveId)||state.remainingPp[side][moveId]<=0)return false;
-    this.battle.submitAction(side,{type:'move',moveId});this.render();return true;
+    this.battle.submitAction(side,{type:'move',moveId});
+    if(this.trainerMode&&!this.battle.finished){const reply=chooseOpponentMove(this.battle,this.moveRegistry);if(reply)this.battle.submitAction('opponent',{type:'move',moveId:reply});}
+    this.render();return true;
   }
   element(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
   render(){
@@ -60,7 +70,7 @@ export class BattleView {
     }
     this.content.append(arena);
     const moves=this.element('div','battle-move-area');
-    for(const side of ['player','opponent']){
+    for(const side of (this.trainerMode?['player']:['player','opponent'])){
       const section=this.element('section','battle-moves');
       section.append(this.element('h3','',side==='player'?'Deine Attacke wählen':'Teststeuerung: gegnerische Attacke wählen (keine KI)'));
       const list=this.element('div','battle-move-grid');
@@ -72,14 +82,14 @@ export class BattleView {
       }
       section.append(list);moves.append(section);
     }
-    this.content.append(moves);
+    this.content.append(moves);this.closeButton.disabled=this.trainerMode&&!state.finished;
     for(const event of state.events.slice(this.seen)){const msg=eventMessage(event,this.registry,b,this.moveRegistry);if(msg)this.log.push(msg);}
     this.seen=state.events.length;
     const log=this.element('section','battle-log');log.setAttribute('aria-label','Kampfmeldungen');log.setAttribute('role','log');log.setAttribute('aria-live','polite');
     for(const msg of this.log.slice(-8))log.append(this.element('p','',msg));
     this.content.append(log);
     if(state.finished)this.content.append(this.element('p','battle-result','Testkampf beendet. Mit „Schließen“ zur Welt zurückkehren.'));
-    else if(state.pendingSides.length===1)this.content.append(this.element('p','battle-hint','Aktion vorgemerkt. Für diesen Testkampf die andere Seite manuell auswählen.'));
+    else if(!this.trainerMode&&state.pendingSides.length===1)this.content.append(this.element('p','battle-hint','Aktion vorgemerkt. Für diesen Testkampf die andere Seite manuell auswählen.'));
   }
   destroy(){document.removeEventListener('keydown',this.onKey);}
 }
