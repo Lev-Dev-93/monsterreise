@@ -4,6 +4,7 @@ const validInt = (n,min=0) => Number.isSafeInteger(n) && n>=min;
 function assert(ok,message){if(!ok) throw new TypeError(message);}
 function sideOf(side){assert(side==='player'||side==='opponent','Ungültige Kampfseite');return side;}
 const other = side => side==='player'?'opponent':'player';
+export const STRUGGLE_MOVE_ID='struggle';
 /**
  * @param {object} options
  * @param {object} options.playerPokemon Instanz aus pokemon/Pokemon.js
@@ -52,17 +53,30 @@ export class Battle {
   }
   get finished(){return this.result!==null;}
   getState(){return {round:this.round,result:this.result,finished:this.finished,pendingSides:Object.keys(this.pending),playerHp:this.pokemon.player.currentHp,opponentHp:this.pokemon.opponent.currentHp,events:this.events.map(e=>({...e})),remainingPp:{player:{...this.remainingPp.player},opponent:{...this.remainingPp.opponent}}};}
+  hasUsableMove(side){
+    sideOf(side);
+    return this.pokemon[side].moveIds.some(id=>{
+      const move=this.rules.moveRegistry?.get(id);
+      return move && move.category!=='status' && move.effectId===null && move.power>0 && (this.remainingPp[side][id]??0)>0;
+    });
+  }
   /** Eine Attacke pro Seite einreichen. Nach der zweiten Aktion wird die Runde automatisch abgewickelt. */
   submitAction(side,action){
     sideOf(side);
     assert(!this.finished,'Kampf ist bereits beendet');
     assert(!this.pending[side],'Aktion für diese Seite bereits eingereicht');
+    assert(this.pokemon[side].currentHp>0,'Kampfunfähiges Pokémon kann nicht handeln');
     assert(action&&action.type==='move'&&typeof action.moveId==='string','Nur gültige Attackenaktionen unterstützt');
-    assert(this.pokemon[side].moveIds.includes(action.moveId),'Attacke gehört nicht zum Pokémon');
+    if(this.rules.moveRegistry&&!this.hasUsableMove(side))action={type:'move',moveId:STRUGGLE_MOVE_ID};
+    const struggle=action.moveId===STRUGGLE_MOVE_ID;
+    assert(!struggle||Boolean(this.rules.moveRegistry)&&!this.hasUsableMove(side),'Verzweifler nur ohne einsetzbare AP');
+    assert(struggle||this.pokemon[side].moveIds.includes(action.moveId),'Attacke gehört nicht zum Pokémon');
     if(this.rules.moveRegistry){
-      const move=this.rules.moveRegistry.get(action.moveId);
-      assert(move&&move.category!=='status'&&move.effectId===null&&move.power>0,'Attackeneffekt noch nicht unterstützt');
-      assert(this.remainingPp[side][action.moveId]>0,'Keine AP mehr');
+      const move=struggle?null:this.rules.moveRegistry.get(action.moveId);
+      if(!struggle){
+        assert(move&&move.category!=='status'&&move.effectId===null&&move.power>0,'Attackeneffekt noch nicht unterstützt');
+        assert(this.remainingPp[side][action.moveId]>0,'Keine AP mehr');
+      }
     }
     this.pending[side]={type:'move',moveId:action.moveId};
     if(Object.keys(this.pending).length===2)return this._resolveRound();
@@ -75,7 +89,7 @@ export class Battle {
       assert(validInt(speeds[side]),'Initiative muss eine nichtnegative ganze Zahl sein');
     }
     const priorities={player:0,opponent:0};
-    if(this.rules.moveRegistry)for(const side of ['player','opponent'])priorities[side]=this.rules.moveRegistry.get(this.pending[side].moveId).priority;
+    if(this.rules.moveRegistry)for(const side of ['player','opponent'])priorities[side]=(this.pending[side].moveId===STRUGGLE_MOVE_ID?0:this.rules.moveRegistry.get(this.pending[side].moveId).priority);
     let first;
     if(priorities.player!==priorities.opponent)first=priorities.player>priorities.opponent?'player':'opponent';
     else if(speeds.player===speeds.opponent){
@@ -89,18 +103,24 @@ export class Battle {
       if(this.finished)break;
       const attacker=this.pokemon[side],defender=this.pokemon[other(side)];
       if(attacker.currentHp===0||defender.currentHp===0)continue;
-      const move=this.rules.moveRegistry?.get(actions[side].moveId);
+      const struggle=actions[side].moveId===STRUGGLE_MOVE_ID;
+      const move=struggle?null:this.rules.moveRegistry?.get(actions[side].moveId);
       if(move){consumePp(attacker,actions[side].moveId);this.remainingPp[side][actions[side].moveId]=attacker.movePp[actions[side].moveId].current;}
       if(move&&move.accuracy!==null){
         const roll=this.rules.rng();
         assert(typeof roll==='number'&&Number.isFinite(roll)&&roll>=0&&roll<1,'rng muss [0,1) liefern');
         if(roll*100>=move.accuracy){this.events.push({type:'move-miss',round:this.round,side,moveId:actions[side].moveId});continue;}
       }
-      const amount=this.rules.damage({attacker,defender,moveId:actions[side].moveId,round:this.round,side});
+      const amount=this.rules.damage({attacker,defender,moveId:actions[side].moveId,round:this.round,side,struggle});
       assert(validInt(amount),'Schaden muss eine nichtnegative ganze Zahl sein');
       const applied=Math.min(amount,defender.currentHp);
       defender.currentHp-=applied;
       this.events.push({type:'move',round:this.round,side,moveId:actions[side].moveId,damage:applied,targetHp:defender.currentHp});
+      if(struggle){
+        const recoil=Math.min(attacker.currentHp,Math.max(1,Math.floor(this.maxHp[side]/4)));
+        attacker.currentHp-=recoil;
+        this.events.push({type:'recoil',round:this.round,side,damage:recoil,targetHp:attacker.currentHp});
+      }
       this.result=this._result();
     }
     if(this.finished)this.events.push({type:'battle-end',round:this.round,result:this.result});

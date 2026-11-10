@@ -60,5 +60,6 @@ test('Sieg/Niederlage und AP erschöpft',()=>{
  l.submitAction('player',{type:'move',moveId:'hit'});assert.equal(l.submitAction('opponent',{type:'move',moveId:'hit'}).result,'opponent');
  const e=battle(make('p'),make('o','grass'),{damage:()=>0});
  for(let i=0;i<2;i++){e.submitAction('player',{type:'move',moveId:'hit'});e.submitAction('opponent',{type:'move',moveId:'hit'});}
- assert.throws(()=>e.submitAction('player',{type:'move',moveId:'hit'}),/Keine AP/);
+ assert.equal(e.submitAction('player',{type:'move',moveId:'hit'}).pendingSides.includes('player'),true);
+ assert.equal(e.pending.player.moveId,'struggle');
 });

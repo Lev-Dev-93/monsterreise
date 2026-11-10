@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createWorldRegistry} from '../src/world/WorldRegistry.js';import {WorldSession} from '../src/world/WorldSession.js';import {Player} from '../src/player/Player.js';
 const reg=()=>createWorldRegistry();const at=(x,y,facing='up')=>{const p=new Player(x*48,y*48);p.facing=facing;return p};
-test('village and interior are valid maps',()=>{const r=reg();assert.equal(r.size,2);assert.equal(r.get('start-village').width,32*48);assert.equal(r.get('sample-house').height,12*48)});
+test('village and interior are valid maps',()=>{const r=reg();assert.equal(r.size,3);assert.equal(r.get('start-village').width,32*48);assert.equal(r.get('sample-house').height,12*48)});
 test('trees, buildings, well, NPCs and boundaries collide',()=>{const w=reg().get('start-village');for(const [x,y] of [[2,5],[5,6],[16,12],[20,14],[0,0]])assert.equal(w.isSolidTile(x,y),true,`${x},${y}`);assert.equal(w.isSolidTile(15,17),false)});
 test('v0.1 player movement respects village obstacles',()=>{const w=reg().get('start-village');const p=at(4,7,'right');p.update(.5,{x:1,y:0},w);assert.ok(p.x+p.width<=5*48)});
 test('automatic enter and leave use safe spawn tiles',()=>{const s=new WorldSession(reg());const p=at(7,9,'up');const enter=s.updatePosition(p);assert.equal(enter.type,'transition');assert.equal(s.mapId,'sample-house');assert.deepEqual({x:enter.x,y:enter.y},{x:5*48,y:8*48});p.x=enter.x;p.y=enter.y;assert.equal(s.updatePosition(p),null);p.x=5*48;p.y=10*48;const exit=s.updatePosition(p);assert.equal(exit.type,'transition');assert.equal(s.mapId,'start-village');assert.deepEqual({x:exit.x,y:exit.y},{x:7*48,y:10*48});assert.equal(s.updatePosition(at(7,10)),null)});

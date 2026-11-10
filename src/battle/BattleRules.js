@@ -63,7 +63,12 @@ export function createClassicBattleOptions({speciesRegistry,moveRegistry,rng=Mat
  return {...adapters,moveRegistry,rng,
   tieBreaker:()=>sampleRandom(rng)<.5?'player':'opponent',
   damage:({attacker,defender,moveId})=>{
-   const move=moveRegistry.get(moveId);
+   const move=moveId==='struggle'?{category:'physical',power:50}:moveRegistry.get(moveId);
+   if(moveId==='struggle'){
+     const statsA=adapters.stats(attacker),statsD=adapters.stats(defender);
+     const base=Math.floor(Math.floor(Math.floor((Math.floor(2*attacker.level/5+2)*50*statsA.attack)/statsD.defense)/50)+2);
+     return Math.max(1,Math.floor(base*(85+Math.floor(sampleRandom(rng)*16))/100));
+   }
    check(move,'Unbekannte Attacke');
    const a=speciesRegistry.get(attacker.speciesId),d=speciesRegistry.get(defender.speciesId);
    check(a&&d,'Unbekannte Pokémon-Art');

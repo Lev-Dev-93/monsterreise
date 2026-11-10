@@ -1,5 +1,5 @@
 /** Auftrag 016: ausschließlich Anzeige und Bedienung einer bestehenden Battle-Sitzung. */
-import {createBattle} from '../battle/Battle.js';
+import {createBattle,STRUGGLE_MOVE_ID} from '../battle/Battle.js';
 import {createClassicBattleOptions} from '../battle/BattleRules.js';
 import {createPokemon} from '../pokemon/Pokemon.js';
 import {sampleMoveRegistry} from '../pokemon/sampleMoves.js';
@@ -16,8 +16,9 @@ const label = (registry,p) => p.nickname || registry.get(p.speciesId)?.name || p
 export function eventMessage(event, registry, battle, moves) {
   if(event.type==='battle-start') return 'Testkampf gestartet.';
   if(event.type==='round-start') return `Runde ${event.round} beginnt.`;
-  if(event.type==='move-miss') return `${label(registry,battle.pokemon[event.side])}: ${moves.get(event.moveId)?.name || event.moveId} verfehlt!`;
-  if(event.type==='move') return `${label(registry,battle.pokemon[event.side])} setzt ${moves.get(event.moveId)?.name || event.moveId} ein: ${event.damage} KP Schaden.`;
+  if(event.type==='move-miss') return `${label(registry,battle.pokemon[event.side])}: ${(event.moveId===STRUGGLE_MOVE_ID?'Verzweifler':moves.get(event.moveId)?.name || event.moveId)} verfehlt!`;
+  if(event.type==='recoil') return `${label(registry,battle.pokemon[event.side])} erleidet ${event.damage} KP Rückstoß.`;
+  if(event.type==='move') return `${label(registry,battle.pokemon[event.side])} setzt ${(event.moveId===STRUGGLE_MOVE_ID?'Verzweifler':moves.get(event.moveId)?.name || event.moveId)} ein: ${event.damage} KP Schaden.`;
   if(event.type==='battle-end') return event.result==='draw'?'Unentschieden.':event.result==='player'?'Testkampf gewonnen.':'Testkampf verloren.';
   return null;
 }
@@ -36,7 +37,7 @@ export class BattleView {
   openTrainerBattle(){
     if(this.isOpen()||this.game.ui.isDialogOpen()||this.game.menuOpen)return false;
     const member=this.team.getMembers().find(p=>p.currentHp===null||p.currentHp>0);
-    if(!member||!member.moveIds.some(id=>supported(this.moveRegistry.get(id))&&(member.movePp?.[id]?.current??this.moveRegistry.get(id)?.pp??0)>0))return false;
+    if(!member)return false; // Ohne nutzbare AP ist Verzweifler verfügbar.
     const battleId=nextTrainerBattleId();
     const sync=this.team.beginBattleSync(member.instanceId,battleId);
     let battle;
@@ -52,7 +53,7 @@ export class BattleView {
     const member=this.team.getMembers()[0];
     if(!member){if(this.openButton)this.openButton.title='Zuerst beim Professor einen Starter wählen';return false;}
     // Separate Testinstanzen: weder Team-KP noch gespeicherte Attacken verändern.
-    const player=createPokemon({...member,registry:this.registry,instanceId:'battle-test-player',currentHp:null,moveIds:['tackle','scratch']});
+    const player=createPokemon({...member,registry:this.registry,instanceId:'battle-test-player',currentHp:null,movePp:null,moveIds:['tackle','scratch']});
     const opponent=createPokemon({registry:this.registry,speciesId:'eevee',instanceId:'battle-test-opponent',level:5,moveIds:['tackle'],currentHp:null});
     this.battle=createBattle({playerPokemon:player,opponentPokemon:opponent,...createClassicBattleOptions({speciesRegistry:this.registry,moveRegistry:this.moveRegistry})});
     this.trainerMode=false;this.seen=0;this.log=[];this.panel.hidden=false;this.game.setMenuOpen(true);this.onOpenChange(true);this.render();this.closeButton.focus();return true;
@@ -78,10 +79,20 @@ export class BattleView {
   choose(side,moveId){
     if(!this.isOpen()||!this.battle||this.battle.finished)return false;
     const move=this.moveRegistry.get(moveId),state=this.battle.getState();
-    if(!supported(move)||state.pendingSides.includes(side)||!this.battle.pokemon[side].moveIds.includes(moveId)||state.remainingPp[side][moveId]<=0)return false;
+    const struggle=moveId===STRUGGLE_MOVE_ID;
+    if(state.pendingSides.includes(side)||(!struggle&&(!supported(move)||!this.battle.pokemon[side].moveIds.includes(moveId)||state.remainingPp[side][moveId]<=0))||(struggle&&this.battle.hasUsableMove(side)))return false;
+    // Preflight: never enqueue the player's action if the AI cannot respond.
+    // The final no-PP rule (e.g. Struggle) requires project approval.
+    const reply=this.trainerMode?chooseOpponentMove(this.battle,this.moveRegistry):null;
+    if(this.trainerMode&&!reply){this.log.push('Gegneraktion konnte nicht ermittelt werden.');this.render();return false;}
     this.battle.submitAction(side,{type:'move',moveId});
-    if(this.trainerMode&&!this.battle.finished){const reply=chooseOpponentMove(this.battle,this.moveRegistry);if(reply)this.battle.submitAction('opponent',{type:'move',moveId:reply});}
-    if(this.trainerMode&&this.battle.finished)this.commitTrainerResult();
+    if(this.trainerMode&&!this.battle.finished)this.battle.submitAction('opponent',{type:'move',moveId:reply});
+    if(this.trainerMode&&this.battle.finished){
+      try{this.commitTrainerResult();}catch(error){
+        this.log.push('Ergebnisübernahme fehlgeschlagen: '+error.message+' – Welt bleibt gesperrt.');
+        this.render();return false;
+      }
+    }
     this.render();return true;
   }
   element(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
@@ -111,6 +122,7 @@ export class BattleView {
         if(!supported(move))button.title='Attackeneffekt noch nicht unterstützt';
         button.addEventListener('click',()=>this.choose(side,id));list.append(button);
       }
+      if(!b.hasUsableMove(side)){const button=this.element('button','battle-move','Verzweifler · Stärke 50 · keine AP · Rückstoß');button.type='button';button.disabled=state.finished||state.pendingSides.includes(side);button.addEventListener('click',()=>this.choose(side,STRUGGLE_MOVE_ID));list.append(button);}
       section.append(list);moves.append(section);
     }
     this.content.append(moves);this.closeButton.disabled=this.trainerMode&&!state.finished;

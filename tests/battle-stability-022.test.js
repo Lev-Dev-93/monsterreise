@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createTeam,restoreTeam} from '../src/pokemon/Team.js';
+import {createPokemon} from '../src/pokemon/Pokemon.js';
+import {sampleRegistry} from '../src/pokemon/sampleData.js';
+import {sampleMoveRegistry} from '../src/pokemon/sampleMoves.js';
+import {createTrainerTestBattle,chooseOpponentMove,firstBattleReady} from '../src/battle/TrainerBattle.js';
+import {BattleView} from '../src/ui/BattleView.js';
+const team=()=>{const t=createTeam({registry:sampleRegistry});t.addMember(createPokemon({registry:sampleRegistry,speciesId:'charmander',instanceId:'022',level:5,moveIds:['scratch']}));return t;};
+test('0 KP darf keine Attacke mehr ausführen und gilt nicht als kampffähig',()=>{const t=team(),s=t.beginBattleSync('022','zero-022');const b=createTrainerTestBattle({team:t,registry:sampleRegistry,moveRegistry:sampleMoveRegistry,playerSnapshot:s.pokemon});b.pokemon.player.currentHp=0;b.result=b._result();assert.equal(b.finished,true);assert.throws(()=>b.submitAction('player',{type:'move',moveId:'scratch'}));t.cancelBattleSync('022','zero-022');});
+test('KI liefert bei verbrauchten AP keine ungültige Attacke',()=>{const t=team(),b=createTrainerTestBattle({team:t,registry:sampleRegistry,moveRegistry:sampleMoveRegistry});b.remainingPp.opponent.tackle=0;assert.equal(chooseOpponentMove(b,sampleMoveRegistry),'struggle');});
+test('Fehlende KI-Aktion lässt keine halbe Runde zurück',()=>{const t=team(),b=createTrainerTestBattle({team:t,registry:sampleRegistry,moveRegistry:sampleMoveRegistry});b.remainingPp.opponent.tackle=0;const view=Object.create(BattleView.prototype);view.battle=b;view.trainerMode=true;view.moveRegistry=sampleMoveRegistry;view.log=[];view.isOpen=()=>true;view.render=()=>{};assert.equal(view.choose('player','scratch'),true);assert.deepEqual(b.getState().pendingSides,[]);assert.equal(b.round,1);});
+test('Fehlgeschlagene Ergebnisübernahme sperrt die Welt weiter',()=>{const view=Object.create(BattleView.prototype);view.battle={finished:true,pokemon:{player:{currentHp:1,maxHp:10,movePp:{}}}};view.battleSync={battleId:'err',instanceId:'022',committed:false};view.team={applyBattleResult:()=>{throw Error('Speicherkonflikt');}};assert.throws(()=>view.commitTrainerResult(),/Speicherkonflikt/);assert.equal(view.battleSync.committed,false);view.trainerMode=true;view.panel={hidden:false};view.isOpen=()=>true;assert.throws(()=>view.close(),/Speicherkonflikt/);assert.equal(view.panel.hidden,false);});
+test('Alte Spielstände bleiben lesbar, abgebrochene Synchronisation bleibt ungespeichert',()=>{const t=team(),legacy={starterAssigned:false,members:t.getMembers()};const r=restoreTeam(legacy,sampleRegistry);const before=r.getMembers();r.beginBattleSync('022','cancel-022');r.cancelBattleSync('022','cancel-022');assert.deepEqual(r.getMembers(),before);assert.deepEqual(restoreTeam(r.toSaveData(),sampleRegistry).getMembers(),before);});

@@ -1,0 +1,3 @@
+Auftrag 025 – npm test
+168 Tests bestanden; 0 fehlgeschlagen; 9 neu.
+Automatisierte Node-Tests, kein Desktop-Praxistest.

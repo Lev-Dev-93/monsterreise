@@ -10,6 +10,7 @@ import {Game} from './core/Game.js';
 import {createWorldRegistry} from './world/WorldRegistry.js';
 import {WorldSession} from './world/WorldSession.js';
 import {ProfessorEncounter} from './dialog/ProfessorEncounter.js';
+import {centerWorldEvent} from './center/CenterWorldInteraction.js';
 const worldRegistry=createWorldRegistry();
 const saveSystem=new SaveSystem({registry:sampleRegistry,worldRegistry});
 let activeSlot=1;
@@ -35,7 +36,7 @@ let pokemonMenus;
 let battleView;
 let testSaveMode;
 const professor=new ProfessorEncounter({team,openStarterSelection:()=>openProfessorStarterSelection()});
-const game=new Game({session:new WorldSession(worldRegistry),canvas:document.querySelector('#game'),controls:document.querySelector('#controls'),onWorldEvent:event=>trainerWorldEvent(professor.handle(event),{team,startBattle:()=>battleView.openTrainerBattle()})});
+const game=new Game({session:new WorldSession(worldRegistry),canvas:document.querySelector('#game'),controls:document.querySelector('#controls'),onWorldEvent:event=>centerWorldEvent(trainerWorldEvent(professor.handle(event),{team,startBattle:()=>battleView.openTrainerBattle()}),{team,canHeal:()=>!battleView?.isOpen()&&!testSaveMode?.isOpen()&&!game.menuOpen&&!game.ui.isDialogOpen(),speciesRegistry:sampleRegistry})});
 if(loaded.status==='ok' && loaded.location)game.restoreSaveLocation(loaded.location);
 game.start();
 

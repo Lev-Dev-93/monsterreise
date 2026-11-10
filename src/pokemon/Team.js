@@ -1,9 +1,11 @@
 /** Auftrag 008: Teamverwaltung; verwendet ausschließlich Pokemon.js-Instanzen. */
-import {createPokemon, serializePokemon, deserializePokemon} from './Pokemon.js';
+import {createPokemon, serializePokemon, deserializePokemon, initializeMovePp} from './Pokemon.js';
+import {getStarterMoveIds} from './starterMoves.js';
+import {sampleMoveRegistry} from './sampleMoves.js';
 export const MAX_TEAM_SIZE = 6;
 const assert = (ok, message) => { if (!ok) throw new TypeError(message); };
 const copy = value => JSON.parse(JSON.stringify(value));
-export function createTeam({registry, members = [], starterAssigned = false} = {}) {
+export function createTeam({registry, members = [], starterAssigned = false, moveRegistry = sampleMoveRegistry} = {}) {
   assert(registry && typeof registry.get === 'function', 'Pokémon-Register fehlt');
   assert(Array.isArray(members) && members.length <= MAX_TEAM_SIZE, 'Ungültige Teamgröße');
   assert(typeof starterAssigned === 'boolean', 'Ungültiger Starterstatus');
@@ -60,6 +62,43 @@ export function createTeam({registry, members = [], starterAssigned = false} = {
       revisions.clear();for(const p of team)revisions.set(p.instanceId,data.revisions[p.instanceId]);
       consumed.clear();for(const id of data.consumed)consumed.add(id);
     },
+    /** Explicit, atomic Pokémon-Center healing. Never called by loading or initialization. */
+    healAll({calculateMaxHp, moveRegistry:healingMoves = moveRegistry} = {}) {
+      assert(active.size === 0, 'Heilung während eines aktiven Kampfes gesperrt');
+      assert(healingMoves && typeof healingMoves.get === 'function', 'Attackenregister fehlt');
+      // Stage and validate the entire party before committing a single member.
+      const healed = team.map(member => {
+        const next = serializePokemon(member);
+        const maximum = next.maxHp === null
+          ? (typeof calculateMaxHp === 'function' ? calculateMaxHp(copy(next)) : null)
+          : next.maxHp;
+        assert(integer(maximum, 1), 'Maximale KP fehlen oder sind ungültig');
+        assert(next.currentHp === null || integer(next.currentHp, 0, maximum), 'Ungültige aktuelle KP');
+        next.maxHp = maximum;
+        next.currentHp = maximum;
+        assert(new Set(next.moveIds).size === next.moveIds.length, 'Doppelte Attacke');
+        assert(next.movePp === null || (next.movePp && typeof next.movePp === 'object' && !Array.isArray(next.movePp)), 'Ungültige AP-Daten');
+        assert(next.movePp === null || Object.keys(next.movePp).every(id => next.moveIds.includes(id)), 'AP für unbekannte Attacke');
+        const pp = {};
+        for (const id of next.moveIds) {
+          const move = healingMoves.get(id);
+          assert(move && integer(move.pp, 1), `Unbekannte Attacke: ${id}`);
+          const old = next.movePp?.[id];
+          assert(old === undefined || (old && integer(old.max, 1) && integer(old.current, 0, old.max) && old.max === move.pp), `Ungültige AP: ${id}`);
+          pp[id] = {current: move.pp, max: move.pp};
+        }
+        next.movePp = pp;
+        return deserializePokemon(next, registry);
+      });
+      const changed = healed.filter((p, i) => !same(p, team[i])).length;
+      for (let i = 0; i < healed.length; i++) {
+        if (!same(healed[i], team[i])) {
+          team[i] = healed[i];
+          revisions.set(healed[i].instanceId, revisions.get(healed[i].instanceId) + 1);
+        }
+      }
+      return {healed: team.length, changed};
+    },
     getMembers() { return team.map(serializePokemon); },
     getMember(id) { const p = team.find(p => p.instanceId === id); return p ? serializePokemon(p) : null; },
     get size() { return team.length; },
@@ -102,7 +141,9 @@ export function createTeam({registry, members = [], starterAssigned = false} = {
       assert(!assigned, 'Starter wurde bereits vergeben');
       assert(team.length < MAX_TEAM_SIZE, 'Team ist voll');
       assert(indexOf(instanceId) < 0, 'Doppelte Instanz-ID');
-      const p = createPokemon({registry, speciesId, instanceId, level, origin:'starter'});
+      const moveIds=getStarterMoveIds(speciesId,moveRegistry);
+      const p = createPokemon({registry, speciesId, instanceId, level, origin:'starter',moveIds});
+      initializeMovePp(p,moveRegistry);
       team.push(p); revisions.set(p.instanceId,0); assigned = true;
       return serializePokemon(p);
     },
