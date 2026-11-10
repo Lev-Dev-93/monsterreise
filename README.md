@@ -32,3 +32,6 @@ In der Testwelt steht bei (18,16) ein als Test markierter Professor. Von Süden 
 
 ## v0.3.1 – Auftrag 012
 Spielerposition, Karte, Blickrichtung und Haus-Rückkehrposition werden zusammen mit dem Team pro Slot gespeichert. Ältere Team-only-Spielstände laden am Startspawn. Siehe `docs/INTEGRATION_012.md`; Tests: `npm test`.
+
+### Auftrag 019
+Team-Kampfzustandsübernahme mit `beginBattleSync` / `applyBattleResult` / `cancelBattleSync`; siehe `docs/TEAM_BATTLE_019.md`. Keine BattleView- oder SaveSystem-Änderung.

@@ -5,6 +5,7 @@ import {PokemonMenus} from './ui/PokemonMenus.js';
 import {Fullscreen} from './ui/Fullscreen.js';
 import {BattleView} from './ui/BattleView.js';
 import {trainerWorldEvent} from './battle/TrainerBattle.js';
+import {TestSaveMode} from './ui/TestSaveMode.js';
 import {Game} from './core/Game.js';
 import {createWorldRegistry} from './world/WorldRegistry.js';
 import {WorldSession} from './world/WorldSession.js';
@@ -16,8 +17,9 @@ let loaded=saveSystem.load(activeSlot);
 let team=loaded.status==='ok'?loaded.team:createTeam({registry:sampleRegistry});
 const saveStatus=document.querySelector('#save-status');
 function report(message){saveStatus.textContent=message;}
-function saveCurrent(){const result=saveSystem.save(activeSlot,team,game.getSaveLocation());report(result.status==='ok'?`Platz ${activeSlot} gespeichert.`:'Speichern fehlgeschlagen (Browserspeicher prüfen).');return result;}
+function saveCurrent(){if(battleView?.isOpen()||testSaveMode?.isOpen()||game?.menuOpen||game?.ui.isDialogOpen()){report('Speichern während Kampf oder Dialog gesperrt.');return {status:'blocked'};}const result=saveSystem.save(activeSlot,team,game.getSaveLocation());report(result.status==='ok'?`Platz ${activeSlot} gespeichert.`:'Speichern fehlgeschlagen (Browserspeicher prüfen).');return result;}
 function loadSlot(slot){
+  if(battleView?.isOpen()||testSaveMode?.isOpen()){report('Speicherplatzwechsel während Kampf oder Testdialog gesperrt.');return {status:'blocked'};}
   const result=saveSystem.load(slot);
   if(result.status==='ok' || result.status==='empty'){
     activeSlot=slot; team=result.status==='ok'?result.team:createTeam({registry:sampleRegistry});
@@ -31,6 +33,7 @@ function loadSlot(slot){
 }
 let pokemonMenus;
 let battleView;
+let testSaveMode;
 const professor=new ProfessorEncounter({team,openStarterSelection:()=>openProfessorStarterSelection()});
 const game=new Game({session:new WorldSession(worldRegistry),canvas:document.querySelector('#game'),controls:document.querySelector('#controls'),onWorldEvent:event=>trainerWorldEvent(professor.handle(event),{team,startBattle:()=>battleView.openTrainerBattle()})});
 if(loaded.status==='ok' && loaded.location)game.restoreSaveLocation(loaded.location);
@@ -43,7 +46,7 @@ pokemonMenus=new PokemonMenus({root:document.querySelector('#app'),registry:samp
 export function openProfessorStarterSelection(){return pokemonMenus.openStarterSelection();}
 export {team,pokemonMenus};
 
-document.querySelector('#save-slot').addEventListener('change',e=>loadSlot(Number(e.target.value)));
+document.querySelector('#save-slot').addEventListener('change',e=>{if(testSaveMode?.isOpen()||battleView?.isOpen()){e.target.value=String(activeSlot);return;}loadSlot(Number(e.target.value));});
 document.querySelector('#save-button').addEventListener('click',()=>{if(!game.ui.isDialogOpen()&&!pokemonMenus.isOpen()&&!battleView.isOpen())saveCurrent();else report('Während Dialog oder Menü nicht speichern.');});
 report(loaded.status==='ok'?(loaded.locationStatus==='invalid'?'Platz 1 geladen; ungültige Position, Startposition verwendet.':'Platz 1 geladen.'):loaded.status==='empty'?'Platz 1 ist leer.':`Platz 1 nicht geladen: ${loaded.status}. Daten bleiben erhalten.`);
 export {saveSystem,saveCurrent,loadSlot};
@@ -52,3 +55,9 @@ export {saveSystem,saveCurrent,loadSlot};
 battleView=new BattleView({root:document.querySelector('#app'),game,team,registry:sampleRegistry,onOpenChange:open=>{for(const id of ['save-slot','save-button','team-toggle','battle-test-toggle'])document.getElementById(id).disabled=open;}});
 
 export {battleView};
+
+// Auftrag 021: Testmodus ist isoliert und später durch Entfernen dieses Blocks rückbaubar.
+testSaveMode=new TestSaveMode({root:document.querySelector('#app'),saveSystem,registry:sampleRegistry,game,loadSlot,report,
+  canOpen:()=>!pokemonMenus.isOpen()&&!battleView.isOpen()&&!game.ui.isDialogOpen()&&!game.menuOpen,
+  onOpenChange:open=>{for(const id of ['save-slot','save-button','team-toggle','battle-test-toggle'])document.getElementById(id).disabled=open;}});
+export {testSaveMode};

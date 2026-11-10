@@ -1,3 +1,4 @@
+import {initializeMovePp, consumePp} from '../pokemon/Pokemon.js';
 /** Auftrag 013: UI-unabhängige Kampfsitzung; Regelberechnungen werden injiziert. */
 const validInt = (n,min=0) => Number.isSafeInteger(n) && n>=min;
 function assert(ok,message){if(!ok) throw new TypeError(message);}
@@ -22,9 +23,9 @@ export class Battle {
     this.remainingPp={player:{},opponent:{}};
     if(moveRegistry){
       assert(typeof moveRegistry.get==='function','Ungültiges Attackenregister');
-      for(const side of ['player','opponent'])for(const id of this.pokemon[side].moveIds){
-        const move=moveRegistry.get(id);assert(move,`Unbekannte Attacke: ${id}`);
-        this.remainingPp[side][id]=move.pp;
+      for(const side of ['player','opponent']){
+        initializeMovePp(this.pokemon[side],moveRegistry);
+        for(const id of this.pokemon[side].moveIds)this.remainingPp[side][id]=this.pokemon[side].movePp[id].current;
       }
     }
     this.maxHp={};
@@ -33,6 +34,8 @@ export class Battle {
       assert(typeof p.instanceId==='string'&&Array.isArray(p.moveIds),'Ungültige Pokémon-Instanz');
       const hp=maxHp(p);assert(validInt(hp,1),'maxHp muss eine positive ganze Zahl liefern');
       this.maxHp[side]=hp;
+      if(p.maxHp===null||p.maxHp===undefined)p.maxHp=hp;
+      assert(p.maxHp===hp,'Gespeicherte maximale KP weichen von der Kampfberechnung ab');
       if(p.currentHp===null) p.currentHp=hp;
       assert(validInt(p.currentHp)&&p.currentHp<=hp,'Aktuelle KP außerhalb des gültigen Bereichs');
     }
@@ -87,7 +90,7 @@ export class Battle {
       const attacker=this.pokemon[side],defender=this.pokemon[other(side)];
       if(attacker.currentHp===0||defender.currentHp===0)continue;
       const move=this.rules.moveRegistry?.get(actions[side].moveId);
-      if(move)this.remainingPp[side][actions[side].moveId]--;
+      if(move){consumePp(attacker,actions[side].moveId);this.remainingPp[side][actions[side].moveId]=attacker.movePp[actions[side].moveId].current;}
       if(move&&move.accuracy!==null){
         const roll=this.rules.rng();
         assert(typeof roll==='number'&&Number.isFinite(roll)&&roll>=0&&roll<1,'rng muss [0,1) liefern');

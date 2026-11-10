@@ -1,4 +1,4 @@
-/** Auftrag 007: unabhängig von UI, Kampf und SaveSystem. */
+/** Pokémon-Instanzen: dauerhafte KP/AP; Regelberechnungen bleiben injizierbar. */
 export const STAT_KEYS = Object.freeze(['hp','attack','defense','specialAttack','specialDefense','speed']);
 export const PERFECT_IV = 31;
 const isObject = x => x !== null && typeof x === 'object' && !Array.isArray(x);
@@ -42,7 +42,7 @@ export function randomIVs(rng=Math.random){
   const iv={};for(const k of STAT_KEYS){const v=rng();check(typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<1,'rng muss [0,1) liefern');iv[k]=Math.floor(v*32);}return iv;
 }
 /** Für Starter und Shiny werden IVs zwingend perfekt gesetzt. */
-export function createPokemon({registry,speciesId,instanceId,level,experience=0,origin='wild',shiny=false,iv,ev,moveIds=[],nickname=null,status=null,currentHp=null}){
+export function createPokemon({registry,speciesId,instanceId,level,experience=0,origin='wild',shiny=false,iv,ev,moveIds=[],nickname=null,status=null,currentHp=null,maxHp=null,movePp=null}){
   check(registry&&typeof registry.get==='function','Register fehlt');
   const species=registry.get(speciesId);check(species,'Unbekannte Pokémon-Art');
   check(typeof instanceId==='string'&&instanceId.length>0,'Instanz-ID fehlt');
@@ -58,8 +58,15 @@ export function createPokemon({registry,speciesId,instanceId,level,experience=0,
   check(Array.isArray(moveIds)&&moveIds.every(m=>typeof m==='string'&&m.length>0),'Attackenliste ungültig');
   check(nickname===null||typeof nickname==='string','Spitzname ungültig');
   check(status===null||typeof status==='string','Status ungültig');
+  check(maxHp===null||integer(maxHp,1),'Maximale KP ungültig');
   check(currentHp===null||integer(currentHp,0),'Aktuelle KP ungültig');
-  return {instanceId,speciesId,level,experience,origin,shiny,iv:resolvedIV,ev:resolvedEV,moveIds:[...moveIds],nickname,status,currentHp};
+  check(maxHp===null||currentHp===null||currentHp<=maxHp,'Aktuelle KP überschreiten Maximum');
+  check(movePp===null||isObject(movePp),'Attacken-AP ungültig');
+  if(movePp!==null){
+    check(Object.keys(movePp).every(id=>moveIds.includes(id)),'AP für unbekannte Attacke');
+    for(const value of Object.values(movePp))check(isObject(value)&&integer(value.max,1)&&integer(value.current,0,value.max),'Ungültige AP-Werte');
+  }
+  return {instanceId,speciesId,level,experience,origin,shiny,iv:resolvedIV,ev:resolvedEV,moveIds:[...moveIds],nickname,status,currentHp,maxHp,movePp:movePp===null?null:clone(movePp)};
 }
 export function serializePokemon(pokemon){return clone(pokemon);}
 export function deserializePokemon(data,registry){
@@ -69,4 +76,59 @@ export function deserializePokemon(data,registry){
 /** Entwicklungsbedingungen sind noch offen: nur Stammdaten-Verweise, keine automatische Evolution. */
 export function evolutionTargets(registry,speciesId){
   const species=registry.get(speciesId);check(species,'Unbekannte Pokémon-Art');return [...species.evolutionTargets];
+}
+
+/** Maximale KP stammen ausschließlich aus einer explizit übergebenen Berechnung. */
+export function initializeHp(pokemon, calculateMaxHp){
+  check(typeof calculateMaxHp==='function','KP-Berechnung fehlt');
+  const max=calculateMaxHp(pokemon);
+  check(integer(max,1),'Ungültige maximale KP');
+  pokemon.maxHp=max;
+  if(pokemon.currentHp===null) pokemon.currentHp=max;
+  check(integer(pokemon.currentHp,0,max),'Aktuelle KP außerhalb des Maximums');
+  return pokemon;
+}
+/** AP aus dem Attackenregister initialisieren; bestehende AP nie auffüllen. */
+export function initializeMovePp(pokemon, moveRegistry){
+  check(moveRegistry&&typeof moveRegistry.get==='function','Attackenregister fehlt');
+  const existing=pokemon.movePp??{};
+  const result={};
+  for(const id of pokemon.moveIds){
+    const move=moveRegistry.get(id);
+    check(move&&integer(move.pp,1),`Attacke unbekannt: ${id}`);
+    const prior=existing[id];
+    if(prior!==undefined){
+      check(integer(prior.max,1)&&integer(prior.current,0,prior.max),'Ungültige gespeicherte AP');
+      result[id]={...prior};
+    }else result[id]={current:move.pp,max:move.pp};
+  }
+  pokemon.movePp=result;
+  return pokemon;
+}
+export function applyHpLoss(pokemon, amount){
+  check(integer(amount,0),'KP-Verlust ungültig');
+  check(integer(pokemon.currentHp,0)&&integer(pokemon.maxHp,1),'KP nicht initialisiert');
+  pokemon.currentHp=Math.max(0,pokemon.currentHp-amount);
+  return pokemon.currentHp;
+}
+export function healHp(pokemon, amount=Infinity){
+  check(amount===Infinity||integer(amount,0),'Heilmenge ungültig');
+  check(integer(pokemon.currentHp,0)&&integer(pokemon.maxHp,1),'KP nicht initialisiert');
+  pokemon.currentHp=Math.min(pokemon.maxHp,pokemon.currentHp+amount);
+  return pokemon.currentHp;
+}
+export function consumePp(pokemon, moveId, amount=1){
+  check(integer(amount,0),'AP-Verbrauch ungültig');
+  const state=pokemon.movePp?.[moveId];
+  check(state&&integer(state.current,0,state.max),'AP nicht initialisiert');
+  check(state.current>=amount,'Nicht genügend AP');
+  state.current-=amount;
+  return state.current;
+}
+export function restorePp(pokemon, moveId, amount=Infinity){
+  check(amount===Infinity||integer(amount,0),'AP-Heilmenge ungültig');
+  const state=pokemon.movePp?.[moveId];
+  check(state&&integer(state.current,0,state.max),'AP nicht initialisiert');
+  state.current=Math.min(state.max,state.current+amount);
+  return state.current;
 }

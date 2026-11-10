@@ -1,9 +1,9 @@
 const keys={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};
 export class Input {
- constructor(target=document,controls=document.querySelector('#controls')){this.target=target;this.controls=controls;this.keyDirs=new Map();this.touch=new Map();this.held=new Set();this.pointerActions=new Set();this.queued=false;
- this.onKeyDown=e=>{const k=e.key.toLowerCase();if(keys[k]){e.preventDefault();this.keyDirs.set(k,keys[k])}if(k==='enter'||k===' '){e.preventDefault();if(!this.held.has(k)){this.held.add(k);this.queued=true}}};
- this.onKeyUp=e=>{const k=e.key.toLowerCase();if(keys[k]){e.preventDefault();this.keyDirs.delete(k)}if(k==='enter'||k===' '){e.preventDefault();this.held.delete(k)}};
- this.onBlur=()=>this.clear();target.addEventListener('keydown',this.onKeyDown);target.addEventListener('keyup',this.onKeyUp);window.addEventListener('blur',this.onBlur);document.addEventListener('visibilitychange',this.onBlur);
+ constructor(target=document,controls=document.querySelector('#controls')){this.target=target;this.controls=controls;this.keyDirs=new Map();this.touch=new Map();this.held=new Set();this.suppressedKeys=new Set();this.pointerActions=new Set();this.queued=false;
+ this.onKeyDown=e=>{const k=e.key.toLowerCase();if(this.suppressedKeys.has(k)){if(keys[k]||k==='enter'||k===' ')e.preventDefault();return}if(keys[k]){e.preventDefault();this.keyDirs.set(k,keys[k])}if(k==='enter'||k===' '){e.preventDefault();if(!this.held.has(k)){this.held.add(k);this.queued=true}}};
+ this.onKeyUp=e=>{const k=e.key.toLowerCase();this.suppressedKeys.delete(k);if(keys[k]){e.preventDefault();this.keyDirs.delete(k)}if(k==='enter'||k===' '){e.preventDefault();this.held.delete(k)}};
+ this.onBlur=()=>{this.clear();this.suppressedKeys.clear()};target.addEventListener('keydown',this.onKeyDown);target.addEventListener('keyup',this.onKeyUp);window.addEventListener('blur',this.onBlur);document.addEventListener('visibilitychange',this.onBlur);
  this.pointerButtons=new Map();
  this.onPointerDown=e=>{const b=e.target.closest?.('[data-dir],[data-action="interact"]');if(!b||!this.controls.contains(b))return;
  e.preventDefault();if(this.pointerButtons.has(e.pointerId))return;
@@ -24,6 +24,6 @@ export class Input {
  }
  getVector(){const s=new Set([...this.keyDirs.values(),...this.touch.values()]);return{x:Number(s.has('right'))-Number(s.has('left')),y:Number(s.has('down'))-Number(s.has('up'))}}
  consumeInteract(){const v=this.queued;this.queued=false;return v}
- clear(){this.keyDirs.clear();this.touch.clear();this.held.clear();this.pointerActions.clear();this.pointerButtons.clear();this.queued=false;this.controls.querySelectorAll('button').forEach(b=>b.classList.remove('active'))}
+ clear(){for(const k of this.keyDirs.keys())this.suppressedKeys.add(k);for(const k of this.held)this.suppressedKeys.add(k);this.keyDirs.clear();this.touch.clear();this.held.clear();this.pointerActions.clear();this.pointerButtons.clear();this.queued=false;this.controls.querySelectorAll('button').forEach(b=>b.classList.remove('active'))}
  destroy(){this.target.removeEventListener('keydown',this.onKeyDown);this.target.removeEventListener('keyup',this.onKeyUp);window.removeEventListener('blur',this.onBlur);document.removeEventListener('visibilitychange',this.onVisibility);for(const k of ['contextmenu','selectstart','dragstart'])this.controls.removeEventListener(k,this.onSuppress);this.controls.removeEventListener('pointerdown',this.onPointerDown);for(const k of ['pointerup','pointercancel','lostpointercapture'])this.controls.removeEventListener(k,this.onPointerEnd)}
 }

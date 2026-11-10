@@ -1,5 +1,5 @@
 /** Auftrag 017: vorläufiger Welttrainer, ohne Story- oder Team-Persistenz. */
-import {createPokemon} from '../pokemon/Pokemon.js';
+import {createPokemon,deserializePokemon} from '../pokemon/Pokemon.js';
 import {createClassicBattleOptions} from './BattleRules.js';
 import {createBattle} from './Battle.js';
 export const TEST_TRAINER_ID='trainer-test-017';
@@ -12,11 +12,11 @@ export function chooseOpponentMove(battle,moveRegistry){
     return m&&m.category!=='status'&&m.effectId===null&&m.power>0&&(state.remainingPp.opponent[id]??0)>0;
   })??null;
 }
-export function createTrainerTestBattle({team,registry,moveRegistry}){
-  const member=firstBattleReady(team);
+export function createTrainerTestBattle({team,registry,moveRegistry,playerSnapshot=null}){
+  const member=playerSnapshot??firstBattleReady(team);
   if(!member)return null;
   // Separate Kampfkopien; keine Änderung am Team oder an Spielständen.
-  const player=createPokemon({...member,registry,instanceId:'trainer017-player',currentHp:null,moveIds:['tackle','scratch']});
+  const player=playerSnapshot?deserializePokemon(member,registry):createPokemon({...member,registry,instanceId:'trainer017-player',currentHp:null,moveIds:['tackle','scratch']});
   const opponent=createPokemon({registry,speciesId:'eevee',instanceId:'trainer017-opponent',level:5,moveIds:['tackle'],currentHp:null});
   return createBattle({playerPokemon:player,opponentPokemon:opponent,...createClassicBattleOptions({speciesRegistry:registry,moveRegistry})});
 }

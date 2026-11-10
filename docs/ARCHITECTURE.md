@@ -36,3 +36,6 @@ Quelle: Projekthandbuch v1.0, Kapitel 2 und 30. Die konkrete Engine bleibt offen
 
 ## Integration 012 – Positionsspeicherung (v0.3.1)
 `save/SaveSystem` speichert optional `location` im bestehenden Slot-Datensatz: `{mapId,x,y,facing,returnPositions}`. Weltpixel und Rückkehrpunkte werden anhand `world/WorldRegistry` validiert. `core/Game` erstellt/übernimmt den Positions-Snapshot; `world/WorldSession` bleibt Eigentümer von Karten-ID und Rückkehrstapel. Bestehende Team-only-Speicherstände sind lesbar. Details: `docs/INTEGRATION_012.md`.
+
+## Auftrag 019 – Battle-zu-Team-Übernahme
+Die Teamverwaltung (`src/pokemon/Team.js`) verwaltet Kampfregistrierungen, zustandsgebundene Übernahme und persistierte Replay-IDs. Battle verändert nur die übergebene Kopie; UI und SaveSystem bleiben getrennt. Details: `docs/TEAM_BATTLE_019.md`.

@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createPokemon,deserializePokemon,serializePokemon,initializeHp,initializeMovePp,applyHpLoss,healHp,consumePp,restorePp} from '../src/pokemon/Pokemon.js';
+import {sampleRegistry} from '../src/pokemon/sampleData.js';
+import {sampleMoveRegistry} from '../src/pokemon/sampleMoves.js';
+const make=()=>createPokemon({registry:sampleRegistry,speciesId:'charmander',instanceId:'018',level:5,moveIds:['scratch','ember']});
+test('legacy instance accepts absent HP and PP fields',()=>{const p=make();delete p.maxHp;delete p.movePp;const restored=deserializePokemon(p,sampleRegistry);assert.equal(restored.maxHp,null);assert.equal(restored.movePp,null);});
+test('HP initialization requires explicit formula',()=>{const p=make();assert.throws(()=>initializeHp(p));initializeHp(p,()=>21);assert.equal(p.currentHp,21);assert.equal(p.maxHp,21);});
+test('damage persists and healing is capped',()=>{const p=make();initializeHp(p,()=>20);assert.equal(applyHpLoss(p,25),0);assert.equal(healHp(p,3),3);assert.equal(healHp(p),20);});
+test('invalid HP operations fail',()=>{const p=make();assert.throws(()=>applyHpLoss(p,1));initializeHp(p,()=>20);assert.throws(()=>applyHpLoss(p,-1));});
+test('move PP initialized from registry',()=>{const p=make();initializeMovePp(p,sampleMoveRegistry);assert.deepEqual(p.movePp.scratch,{current:35,max:35});assert.deepEqual(p.movePp.ember,{current:25,max:25});});
+test('PP consumption and recovery bounded',()=>{const p=make();initializeMovePp(p,sampleMoveRegistry);assert.equal(consumePp(p,'ember',5),20);assert.equal(restorePp(p,'ember',100),25);assert.throws(()=>consumePp(p,'ember',26));});
+test('PP initialization does not reset previously consumed PP',()=>{const p=make();initializeMovePp(p,sampleMoveRegistry);consumePp(p,'scratch',3);initializeMovePp(p,sampleMoveRegistry);assert.equal(p.movePp.scratch.current,32);});
+test('serialization roundtrip preserves HP and PP',()=>{const p=make();initializeHp(p,()=>19);initializeMovePp(p,sampleMoveRegistry);applyHpLoss(p,7);consumePp(p,'ember',2);const q=deserializePokemon(serializePokemon(p),sampleRegistry);assert.equal(q.currentHp,12);assert.equal(q.maxHp,19);assert.equal(q.movePp.ember.current,23);});
+test('invalid HP and PP snapshots rejected',()=>{const p=make();assert.throws(()=>deserializePokemon({...p,maxHp:10,currentHp:11},sampleRegistry));assert.throws(()=>deserializePokemon({...p,movePp:{ember:{current:30,max:25}}},sampleRegistry));});

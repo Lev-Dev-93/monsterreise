@@ -26,3 +26,6 @@ Siehe `docs/POKEMON_007.md` für die exportierten Funktionen und die Abgrenzung 
 
 ## Auftrag 010 – Dialogabschluss
 `Game({onWorldEvent?: (event) => event})` unterstützt die Anreicherung von Dialogereignissen. Optionales `dialog.onComplete()` wird nach der letzten Zeile einmal aufgerufen. `ProfessorEncounter({team,openStarterSelection}).handle(event)` liefert für `npcId='professor-test'` einen Dialog mit Abschlussaktion nur solange `team.starterAssigned===false`; andere Ereignisse bleiben unverändert. Keine neue Starterverwaltung.
+
+## Auftrag 019 – Team / Battle (technische Integrationsschnittstelle)
+Siehe `docs/TEAM_BATTLE_019.md`. `team.beginBattleSync(instanceId,battleId)` gibt eine isolierte Pokémon-Kopie zurück; nach Kampfende `team.applyBattleResult({battleId,instanceId,currentHp,maxHp,movePp})`. Optional `team.cancelBattleSync(instanceId,battleId)`. SaveSystem bleibt unverändert.

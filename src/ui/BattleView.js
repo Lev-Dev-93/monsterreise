@@ -5,6 +5,12 @@ import {createPokemon} from '../pokemon/Pokemon.js';
 import {sampleMoveRegistry} from '../pokemon/sampleMoves.js';
 import {chooseOpponentMove,createTrainerTestBattle} from '../battle/TrainerBattle.js';
 
+let battleSequence=0;
+export function nextTrainerBattleId(){
+  battleSequence++;
+  const random=globalThis.crypto?.randomUUID?.();
+  return `trainer-020-${random??`${Date.now().toString(36)}-${battleSequence.toString(36)}-${Math.random().toString(36).slice(2)}`}`;
+}
 const supported = move => move && move.category !== 'status' && move.effectId === null && move.power > 0;
 const label = (registry,p) => p.nickname || registry.get(p.speciesId)?.name || p.speciesId;
 export function eventMessage(event, registry, battle, moves) {
@@ -24,13 +30,20 @@ export class BattleView {
     this.closeButton.addEventListener('click',()=>this.close());
     this.onKey=e=>{if(this.isOpen()&&e.key==='Escape'){e.preventDefault();if(this.battle?.finished)this.close();}};
     document.addEventListener('keydown',this.onKey);
-    this.battle=null;this.seen=0;this.log=[];this.trainerMode=false;
+    this.battle=null;this.seen=0;this.log=[];this.trainerMode=false;this.battleSync=null;
   }
   isOpen(){return !this.panel.hidden;}
   openTrainerBattle(){
     if(this.isOpen()||this.game.ui.isDialogOpen()||this.game.menuOpen)return false;
-    const battle=createTrainerTestBattle({team:this.team,registry:this.registry,moveRegistry:this.moveRegistry});
-    if(!battle)return false;
+    const member=this.team.getMembers().find(p=>p.currentHp===null||p.currentHp>0);
+    if(!member||!member.moveIds.some(id=>supported(this.moveRegistry.get(id))&&(member.movePp?.[id]?.current??this.moveRegistry.get(id)?.pp??0)>0))return false;
+    const battleId=nextTrainerBattleId();
+    const sync=this.team.beginBattleSync(member.instanceId,battleId);
+    let battle;
+    try{battle=createTrainerTestBattle({team:this.team,registry:this.registry,moveRegistry:this.moveRegistry,playerSnapshot:sync.pokemon});
+      if(!battle)throw new Error('Kein kampffähiges Pokémon');
+    }catch(error){this.team.cancelBattleSync(member.instanceId,battleId);throw error;}
+    this.battleSync={battleId,instanceId:member.instanceId,committed:false};
     this.trainerMode=true;this.battle=battle;this.seen=0;this.log=[];
     this.panel.hidden=false;this.game.setMenuOpen(true);this.onOpenChange(true);this.render();this.closeButton.focus();return true;
   }
@@ -44,13 +57,31 @@ export class BattleView {
     this.battle=createBattle({playerPokemon:player,opponentPokemon:opponent,...createClassicBattleOptions({speciesRegistry:this.registry,moveRegistry:this.moveRegistry})});
     this.trainerMode=false;this.seen=0;this.log=[];this.panel.hidden=false;this.game.setMenuOpen(true);this.onOpenChange(true);this.render();this.closeButton.focus();return true;
   }
-  close(){if(!this.isOpen()||(this.trainerMode&&!this.battle?.finished))return false;this.panel.hidden=true;this.battle=null;this.trainerMode=false;this.game.setMenuOpen(false);this.onOpenChange(false);this.game.input.clear();this.game.renderer.canvas?.focus?.();return true;}
+  commitTrainerResult(){
+    const sync=this.battleSync;
+    if(!sync||sync.committed||!this.battle?.finished)return false;
+    const p=this.battle.pokemon.player;
+    this.team.applyBattleResult({battleId:sync.battleId,instanceId:sync.instanceId,
+      currentHp:p.currentHp,maxHp:p.maxHp,movePp:p.movePp});
+    sync.committed=true;
+    return true;
+  }
+  cancelTrainerBattle(){
+    if(!this.battleSync||this.battleSync.committed||this.battle?.finished)return false;
+    this.team.cancelBattleSync(this.battleSync.instanceId,this.battleSync.battleId);
+    this.battleSync=null;
+    this.panel.hidden=true;this.battle=null;this.trainerMode=false;
+    this.game.setMenuOpen(false);this.onOpenChange(false);this.game.input.clear();
+    return true;
+  }
+  close(){if(!this.isOpen()||(this.trainerMode&&!this.battle?.finished))return false;if(this.trainerMode)this.commitTrainerResult();this.panel.hidden=true;this.battle=null;this.battleSync=null;this.trainerMode=false;this.game.setMenuOpen(false);this.onOpenChange(false);this.game.input.clear();this.game.renderer.canvas?.focus?.();return true;}
   choose(side,moveId){
     if(!this.isOpen()||!this.battle||this.battle.finished)return false;
     const move=this.moveRegistry.get(moveId),state=this.battle.getState();
     if(!supported(move)||state.pendingSides.includes(side)||!this.battle.pokemon[side].moveIds.includes(moveId)||state.remainingPp[side][moveId]<=0)return false;
     this.battle.submitAction(side,{type:'move',moveId});
     if(this.trainerMode&&!this.battle.finished){const reply=chooseOpponentMove(this.battle,this.moveRegistry);if(reply)this.battle.submitAction('opponent',{type:'move',moveId:reply});}
+    if(this.trainerMode&&this.battle.finished)this.commitTrainerResult();
     this.render();return true;
   }
   element(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
@@ -91,5 +122,5 @@ export class BattleView {
     if(state.finished)this.content.append(this.element('p','battle-result','Testkampf beendet. Mit „Schließen“ zur Welt zurückkehren.'));
     else if(!this.trainerMode&&state.pendingSides.length===1)this.content.append(this.element('p','battle-hint','Aktion vorgemerkt. Für diesen Testkampf die andere Seite manuell auswählen.'));
   }
-  destroy(){document.removeEventListener('keydown',this.onKey);}
+  destroy(){if(this.battleSync&&!this.battleSync.committed&&!this.battle?.finished)this.cancelTrainerBattle();document.removeEventListener('keydown',this.onKey);}
 }

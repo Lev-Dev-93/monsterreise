@@ -35,7 +35,7 @@ export class PokemonMenus {
         const info = document.createElement('div');
         const name = document.createElement('strong'); name.textContent = `${pokemon.nickname || species?.name || pokemon.speciesId} · Lv. ${pokemon.level}`;
         const types = document.createElement('p'); types.textContent = `Typ: ${species?.types.join(' / ') || 'Unbekannt'}`;
-        const status = document.createElement('p'); status.textContent = `Status: ${pokemon.status ?? 'Keiner'}${pokemon.currentHp === null ? '' : ` · KP: ${pokemon.currentHp}`}`;
+        const status = document.createElement('p'); status.textContent = `Status: ${pokemon.status ?? 'Keiner'}${pokemon.currentHp === null ? '' : ` · KP: ${pokemon.currentHp}/${pokemon.maxHp??'?'}`}${pokemon.movePp ? ' · AP: '+pokemon.moveIds.map(id=>`${id} ${pokemon.movePp[id]?.current??'?'}/${pokemon.movePp[id]?.max??'?'}`).join(', ') : ''}`;
         info.append(name, types, status); card.append(sprite, info); this.content.append(card);
       }
     } else if (this.mode === 'starter') {
