@@ -46,7 +46,7 @@ test('Bestehende normale und Verzweifler-Testspielstände bleiben unverändert',
 });
 test('Verzweifler ist kein regulärer Starter-Move',()=>{
  for(const ids of Object.values(STARTER_MOVE_PROPOSALS))assert(!ids.includes('struggle'));
- assert.deepEqual(getStarterMoveIds('riolu',sampleMoveRegistry),[]);
+ assert.deepEqual(getStarterMoveIds('riolu',sampleMoveRegistry),['quick-attack']);
 });
 test('Unbekannte oder nicht unterstützte Movesets werden abgewiesen',()=>{
  assert.deepEqual(getStarterMoveIds('unknown',sampleMoveRegistry),[]);

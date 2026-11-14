@@ -1,0 +1,334 @@
+TAP version 13
+# Subtest: canonical species ID only
+ok 1 - canonical species ID only
+  ---
+  duration_ms: 1.572116
+  type: 'test'
+  ...
+# Subtest: parameterized admission, fail closed
+ok 2 - parameterized admission, fail closed
+  ---
+  duration_ms: 0.378069
+  type: 'test'
+  ...
+# Subtest: reserved IDs collision retry
+ok 3 - reserved IDs collision retry
+  ---
+  duration_ms: 0.424098
+  type: 'test'
+  ...
+# Subtest: reserved IDs exhausted
+ok 4 - reserved IDs exhausted
+  ---
+  duration_ms: 0.22613
+  type: 'test'
+  ...
+# Subtest: egg retains identity and no team member
+ok 5 - egg retains identity and no team member
+  ---
+  duration_ms: 1.427509
+  type: 'test'
+  ...
+# Subtest: wish mismatch and egg collision rejected
+ok 6 - wish mismatch and egg collision rejected
+  ---
+  duration_ms: 0.281554
+  type: 'test'
+  ...
+# Subtest: team 0: isolated hatch
+ok 7 - team 0: isolated hatch
+  ---
+  duration_ms: 2.431631
+  type: 'test'
+  ...
+# Subtest: team 5: isolated hatch
+ok 8 - team 5: isolated hatch
+  ---
+  duration_ms: 1.982835
+  type: 'test'
+  ...
+# Subtest: team 6 blocks without mutation
+ok 9 - team 6 blocks without mutation
+  ---
+  duration_ms: 1.278113
+  type: 'test'
+  ...
+# Subtest: duplicate trigger is no-op
+ok 10 - duplicate trigger is no-op
+  ---
+  duration_ms: 0.901427
+  type: 'test'
+  ...
+# Subtest: invalid egg and missing parameter approval fail closed
+ok 11 - invalid egg and missing parameter approval fail closed
+  ---
+  duration_ms: 0.467022
+  type: 'test'
+  ...
+# Subtest: battleSync consumed and revisions survive
+ok 12 - battleSync consumed and revisions survive
+  ---
+  duration_ms: 0.735197
+  type: 'test'
+  ...
+# Subtest: invalid battleSync rejected without mutation
+ok 13 - invalid battleSync rejected without mutation
+  ---
+  duration_ms: 0.309937
+  type: 'test'
+  ...
+# Subtest: candidate does not save or confirm starter
+ok 14 - candidate does not save or confirm starter
+  ---
+  duration_ms: 0.478951
+  type: 'test'
+  ...
+# Subtest: exactly twelve canonical IDs
+ok 15 - exactly twelve canonical IDs
+  ---
+  duration_ms: 1.304223
+  type: 'test'
+  ...
+# Subtest: initial state validates and birthday start is transient
+ok 16 - initial state validates and birthday start is transient
+  ---
+  duration_ms: 3.111864
+  type: 'test'
+  ...
+# Subtest: species selection is sole public callback; no team mutation
+ok 17 - species selection is sole public callback; no team mutation
+  ---
+  duration_ms: 0.700454
+  type: 'test'
+  ...
+# Subtest: wish cannot be replaced; duplicate selection is idempotent
+ok 18 - wish cannot be replaced; duplicate selection is idempotent
+  ---
+  duration_ms: 0.416096
+  type: 'test'
+  ...
+# Subtest: out of order, premature professor and unconfirmed scene blocked
+ok 19 - out of order, premature professor and unconfirmed scene blocked
+  ---
+  duration_ms: 0.853905
+  type: 'test'
+  ...
+# Subtest: gift reserves stable egg and never adds team member
+ok 20 - gift reserves stable egg and never adds team member
+  ---
+  duration_ms: 0.303066
+  type: 'test'
+  ...
+# Subtest: professor requires voluntary acceptance and professor-only catch
+ok 21 - professor requires voluntary acceptance and professor-only catch
+  ---
+  duration_ms: 1.071383
+  type: 'test'
+  ...
+# Subtest: expedition cannot complete without safe return
+ok 22 - expedition cannot complete without safe return
+  ---
+  duration_ms: 0.785493
+  type: 'test'
+  ...
+# Subtest: complete 12-step prologue and one isolated hatch
+ok 23 - complete 12-step prologue and one isolated hatch
+  ---
+  duration_ms: 4.688037
+  type: 'test'
+  ...
+# Subtest: route entry only via validated portal, never reload/teleport/map start
+ok 24 - route entry only via validated portal, never reload/teleport/map start
+  ---
+  duration_ms: 1.163481
+  type: 'test'
+  ...
+# Subtest: token replay before commit cannot prepare twice
+ok 25 - token replay before commit cannot prepare twice
+  ---
+  duration_ms: 2.227143
+  type: 'test'
+  ...
+# Subtest: team full blocks hatch, no mutations
+ok 26 - team full blocks hatch, no mutations
+  ---
+  duration_ms: 1.617876
+  type: 'test'
+  ...
+# Subtest: corrupt hatch flags rejected; monotonic regression rejected
+ok 27 - corrupt hatch flags rejected; monotonic regression rejected
+  ---
+  duration_ms: 0.777551
+  type: 'test'
+  ...
+# Subtest: stale session and active battle block all events
+ok 28 - stale session and active battle block all events
+  ---
+  duration_ms: 0.421715
+  type: 'test'
+  ...
+# Subtest: unapproved policy and missing hatch parameters fail closed
+ok 29 - unapproved policy and missing hatch parameters fail closed
+  ---
+  duration_ms: 1.466277
+  type: 'test'
+  ...
+# Subtest: checkpoint resume after reload without regranting egg
+ok 30 - checkpoint resume after reload without regranting egg
+  ---
+  duration_ms: 0.936219
+  type: 'test'
+  ...
+# Subtest: create/list/load exact snapshot, three slots, isolation
+ok 31 - create/list/load exact snapshot, three slots, isolation
+  ---
+  duration_ms: 5.282882
+  type: 'test'
+  ...
+# Subtest: legacy keys untouched
+ok 32 - legacy keys untouched
+  ---
+  duration_ms: 1.46824
+  type: 'test'
+  ...
+# Subtest: occupied slot rejected
+ok 33 - occupied slot rejected
+  ---
+  duration_ms: 0.766043
+  type: 'test'
+  ...
+# Subtest: revision increments and stale revision conflicts
+ok 34 - revision increments and stale revision conflicts
+  ---
+  duration_ms: 1.533999
+  type: 'test'
+  ...
+# Subtest: session epoch blocks stale callback
+ok 35 - session epoch blocks stale callback
+  ---
+  duration_ms: 0.67708
+  type: 'test'
+  ...
+# Subtest: corrupt JSON cannot be overwritten
+ok 36 - corrupt JSON cannot be overwritten
+  ---
+  duration_ms: 0.361474
+  type: 'test'
+  ...
+# Subtest: unsupported version rejected
+ok 37 - unsupported version rejected
+  ---
+  duration_ms: 0.632532
+  type: 'test'
+  ...
+# Subtest: missing validator fails closed
+ok 38 - missing validator fails closed
+  ---
+  duration_ms: 0.202615
+  type: 'test'
+  ...
+# Subtest: domain validator rejects candidate
+ok 39 - domain validator rejects candidate
+  ---
+  duration_ms: 0.690509
+  type: 'test'
+  ...
+# Subtest: egg without species rejected
+ok 40 - egg without species rejected
+  ---
+  duration_ms: 0.598581
+  type: 'test'
+  ...
+# Subtest: starter flag inconsistency rejected
+ok 41 - starter flag inconsistency rejected
+  ---
+  duration_ms: 0.315525
+  type: 'test'
+  ...
+# Subtest: return stack length 17 rejected
+ok 42 - return stack length 17 rejected
+  ---
+  duration_ms: 0.613774
+  type: 'test'
+  ...
+# Subtest: lock denied, no writes
+ok 43 - lock denied, no writes
+  ---
+  duration_ms: 1.558856
+  type: 'test'
+  ...
+# Subtest: storage throws without writing
+ok 44 - storage throws without writing
+  ---
+  duration_ms: 0.318068
+  type: 'test'
+  ...
+# Subtest: setItem throws after writing, readback confirms
+ok 45 - setItem throws after writing, readback confirms
+  ---
+  duration_ms: 0.555747
+  type: 'test'
+  ...
+# Subtest: readback unavailable then recover committed
+ok 46 - readback unavailable then recover committed
+  ---
+  duration_ms: 0.767265
+  type: 'test'
+  ...
+# Subtest: uncertain blocks next write and recovery detects foreign data
+ok 47 - uncertain blocks next write and recovery detects foreign data
+  ---
+  duration_ms: 0.660594
+  type: 'test'
+  ...
+# Subtest: readback foreign payload causes uncertain
+ok 48 - readback foreign payload causes uncertain
+  ---
+  duration_ms: 0.350948
+  type: 'test'
+  ...
+# Subtest: monotone flags cannot regress
+ok 49 - monotone flags cannot regress
+  ---
+  duration_ms: 2.011137
+  type: 'test'
+  ...
+# Subtest: strict snapshot rejects unknown top-level fields
+ok 50 - strict snapshot rejects unknown top-level fields
+  ---
+  duration_ms: 0.289396
+  type: 'test'
+  ...
+# Subtest: Web Locks adapter denies unavailable and unavailable navigator
+ok 51 - Web Locks adapter denies unavailable and unavailable navigator
+  ---
+  duration_ms: 0.290517
+  type: 'test'
+  ...
+# Subtest: broken slot does not prevent other slots
+ok 52 - broken slot does not prevent other slots
+  ---
+  duration_ms: 0.849388
+  type: 'test'
+  ...
+# Subtest: two writers with same revision: second conflicts after first commit
+ok 53 - two writers with same revision: second conflicts after first commit
+  ---
+  duration_ms: 2.706945
+  type: 'test'
+  ...
+# Subtest: lock absent fails with LOCK_UNAVAILABLE
+ok 54 - lock absent fails with LOCK_UNAVAILABLE
+  ---
+  duration_ms: 0.150897
+  type: 'test'
+  ...
+1..54
+# tests 54
+# suites 0
+# pass 54
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 108.090677

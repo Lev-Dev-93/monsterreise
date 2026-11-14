@@ -1,0 +1,8 @@
+G7b statische Pfadprüfung
+Geprüfte relative Verweise: 260
+Fehlende lokale Dateien: 0
+Root-absolute Pfade: 0
+Fehlend: []
+Root-absolute: []
+Node-Tests: 311/311 bestanden (erneut ausgeführt)
+Browser-Tests: NICHT DURCHGEFÜHRT

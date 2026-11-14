@@ -42,3 +42,29 @@
 - Keine Änderungen an produktiven Schnittstellen in Auftrag 028.
 - `Team.healAll`, `healAtPokemonCenter`, `centerWorldEvent`, `BattleView`, `TestSaveMode`, `SaveSystem` und `WorldSession` unverändert.
 - `SAVE_VERSION = 1` und bestehende LocalStorage-Schlüssel unverändert.
+
+## Auftrag 029 – noch nicht praktisch abgenommen
+- Zentrale Laufzeit-Kampfsperre in Game, WorldSession, BattleView und Center; Save-Format unverändert.
+- Automatisierte Tests: 199 bestanden, 0 fehlgeschlagen (184 bisherige + 15 neue).
+- Unabhängige Prüfung durch Chat 10 und Desktop-Praxistest nach Paket 029–033 ausstehend.
+
+
+## Auftrag 032 – Integration und Stabilisierung (10.11.2026)
+- Implementiert: Fehler-Cleanup nach Kampfsperrenerwerb beim Rendern, Rücksetzung des Center-Effekts bei Kartenwechsel, genaue und sichtbarkeitsbegrenzte Heilungshinweise.
+- Automatisiert geprüft: 220/220 Tests erfolgreich (213 Bestand + 7 neue). Keine Änderung an Save-Format oder verbindlichen Kampfregeln.
+- Praktisch nicht bestätigt: Desktop-DOM-/Canvas-End-to-End nach 029–032; Test gebündelt nach Auftrag 033. iPhone ausgesetzt.
+- Vorläufig: Starter-Movesets, Riolus Startattacke, Center-Grafik, Testtrainer und Testspielstände.
+- Offen: Recovery bei dauerhaft fehlerhafter Team-Ergebnisübernahme (bewusstes Beibehalten der Sperre zum Schutz der Teamdaten), vollständige Browser-End-to-End-Tests, parallele Browser-Tabs und visuelle Canvas-Abnahme. Details `docs/INTEGRATION_032.md`.
+
+
+## Auftrag 033 – Vorbereitung Desktop-Testpaket (10.11.2026)
+- Basis: unveränderte Spielquellen 032; 220/220 Node-Tests erneut bestanden. Vollständige Projekt-ZIP und separat reduzierte GitHub-Pages-ZIP vorbereitet, nicht veröffentlicht.
+- Automatisiert geprüft: Node-Tests, ZIP-Integrität, lokale Import-/Assetpfade und Pages-Rootstruktur. Keine praktische Mac-Browser-Abnahme.
+- Vorläufig: Starter-Movesets und Center-Grafik bleiben Testinhalte. Keine Änderung an Spielregeln oder Save-Format.
+- Offen: dauerhaft fehlerhafte Ergebnisübernahme, Fehler bei Team-Sync-Rücknahme, DOM-End-to-End-Tests, gehaltene Eingaben, visuelle Fenstergrößen, mehrere Tabs. Siehe `docs/RELEASE_CHECK_033.md` und `docs/DESKTOP_TEST_033.md`.
+
+
+## 034 G5/G6 – isolierte Zusammenführung (14.11.2026)
+- DEV-Entry `index.html` unverändert; separater Story-Kartentest `story-test.html` ohne Speichern, Prolog oder Startervergabe.
+- G2a/G3b/G4a/G4/G4b-Module gemeinsam im Entwicklungsstand; injizierbarer StoryRuntime- und synchroner Rebind-Adapter hinzugefügt, produktiv nicht aktiviert.
+- 311/311 Node-Tests bestanden; Browser-Abnahme offen. Keine Veröffentlichung, keine neue kanonische Starterregel. Details: `docs/INTEGRATION_034_G5_G6.md`.

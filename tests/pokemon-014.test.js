@@ -7,7 +7,7 @@ import {defineMove,createMoveRegistry,getStatInputs,calculateBattleStats,createB
 import {createBattle} from '../src/battle/Battle.js';
 const make=(id,moveIds=['scratch'])=>createPokemon({registry:sampleRegistry,speciesId:'charmander',instanceId:id,level:5,origin:'starter',moveIds});
 const formula=({stat,base,iv,ev,level})=>stat==='hp'?base+iv+level+10:base+iv+Math.floor(ev/4)+level;
-test('Attackendaten sind validiert und abrufbar',()=>{assert.equal(sampleMoveRegistry.get('ember').type,'Feuer');assert.equal(sampleMoveRegistry.list().length,4);});
+test('Attackendaten sind validiert und abrufbar',()=>{assert.equal(sampleMoveRegistry.get('ember').type,'Feuer');assert.equal(sampleMoveRegistry.list().length,5);});
 test('Ungültige Attacke wird abgelehnt',()=>assert.throws(()=>defineMove({moveId:'bad',name:'X',type:'?',category:'physical',pp:5})));
 test('Doppelte Attacken-IDs werden abgelehnt',()=>assert.throws(()=>createMoveRegistry([sampleMoveRegistry.get('tackle'),sampleMoveRegistry.get('tackle')])));
 test('Kampfwert-Eingaben bleiben getrennt von Stammdaten',()=>{const p=make('p');const x=getStatInputs(p,sampleRegistry);x.iv.hp=0;assert.equal(p.iv.hp,31);assert.equal(x.baseStats.hp,39);});

@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: five isolated maps and exact eight transitions; DEV untouched
+ok 1 - five isolated maps and exact eight transitions; DEV untouched
+  ---
+  duration_ms: 1.453545
+  type: 'test'
+  ...
+# Subtest: all spawns, portals and target pixel locations are walkable
+ok 2 - all spawns, portals and target pixel locations are walkable
+  ---
+  duration_ms: 0.69304
+  type: 'test'
+  ...
+# Subtest: every portal traverses and return route is available
+ok 3 - every portal traverses and return route is available
+  ---
+  duration_ms: 0.968533
+  type: 'test'
+  ...
+# Subtest: no portal pingpong on arrival and route event is metadata only
+ok 4 - no portal pingpong on arrival and route event is metadata only
+  ---
+  duration_ms: 0.281704
+  type: 'test'
+  ...
+# Subtest: gate denial and invalid destination never mutate world
+ok 5 - gate denial and invalid destination never mutate world
+  ---
+  duration_ms: 0.270423
+  type: 'test'
+  ...
+# Subtest: rollback and save-location validation preserve pixels and facing
+ok 6 - rollback and save-location validation preserve pixels and facing
+  ---
+  duration_ms: 0.949267
+  type: 'test'
+  ...
+# Subtest: all safe spawns can reach each other via collision-free tiles
+ok 7 - all safe spawns can reach each other via collision-free tiles
+  ---
+  duration_ms: 3.306755
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 96.897309

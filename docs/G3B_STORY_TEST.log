@@ -1,0 +1,106 @@
+TAP version 13
+# Subtest: exactly twelve canonical IDs
+ok 1 - exactly twelve canonical IDs
+  ---
+  duration_ms: 1.21517
+  type: 'test'
+  ...
+# Subtest: initial state validates and birthday start is transient
+ok 2 - initial state validates and birthday start is transient
+  ---
+  duration_ms: 4.156767
+  type: 'test'
+  ...
+# Subtest: species selection is sole public callback; no team mutation
+ok 3 - species selection is sole public callback; no team mutation
+  ---
+  duration_ms: 0.872093
+  type: 'test'
+  ...
+# Subtest: wish cannot be replaced; duplicate selection is idempotent
+ok 4 - wish cannot be replaced; duplicate selection is idempotent
+  ---
+  duration_ms: 0.439071
+  type: 'test'
+  ...
+# Subtest: out of order, premature professor and unconfirmed scene blocked
+ok 5 - out of order, premature professor and unconfirmed scene blocked
+  ---
+  duration_ms: 0.838733
+  type: 'test'
+  ...
+# Subtest: gift reserves stable egg and never adds team member
+ok 6 - gift reserves stable egg and never adds team member
+  ---
+  duration_ms: 0.469607
+  type: 'test'
+  ...
+# Subtest: professor requires voluntary acceptance and professor-only catch
+ok 7 - professor requires voluntary acceptance and professor-only catch
+  ---
+  duration_ms: 1.037361
+  type: 'test'
+  ...
+# Subtest: expedition cannot complete without safe return
+ok 8 - expedition cannot complete without safe return
+  ---
+  duration_ms: 0.749128
+  type: 'test'
+  ...
+# Subtest: complete 12-step prologue and one isolated hatch
+ok 9 - complete 12-step prologue and one isolated hatch
+  ---
+  duration_ms: 4.781007
+  type: 'test'
+  ...
+# Subtest: route entry only via validated portal, never reload/teleport/map start
+ok 10 - route entry only via validated portal, never reload/teleport/map start
+  ---
+  duration_ms: 1.174598
+  type: 'test'
+  ...
+# Subtest: token replay before commit cannot prepare twice
+ok 11 - token replay before commit cannot prepare twice
+  ---
+  duration_ms: 2.800385
+  type: 'test'
+  ...
+# Subtest: team full blocks hatch, no mutations
+ok 12 - team full blocks hatch, no mutations
+  ---
+  duration_ms: 1.834802
+  type: 'test'
+  ...
+# Subtest: corrupt hatch flags rejected; monotonic regression rejected
+ok 13 - corrupt hatch flags rejected; monotonic regression rejected
+  ---
+  duration_ms: 0.871161
+  type: 'test'
+  ...
+# Subtest: stale session and active battle block all events
+ok 14 - stale session and active battle block all events
+  ---
+  duration_ms: 0.368955
+  type: 'test'
+  ...
+# Subtest: unapproved policy and missing hatch parameters fail closed
+ok 15 - unapproved policy and missing hatch parameters fail closed
+  ---
+  duration_ms: 1.252154
+  type: 'test'
+  ...
+# Subtest: checkpoint resume after reload without regranting egg
+ok 16 - checkpoint resume after reload without regranting egg
+  ---
+  duration_ms: 0.848898
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 122.513809
